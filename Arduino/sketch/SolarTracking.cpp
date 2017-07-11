@@ -29,7 +29,7 @@ void SolarTracking::sleep()
     Serial.println("\n***\n*** Shutting down power systems\n***");
 
     /* Go into a deepSleep for SLEEP_DURATION milliseconds */
-    PM.deepSleep(SLEEP_DURATION);
+    PM.deepSleep(SLEEP_DELAY);
 
     /* Arduino 101 is awake whenever it reaches here */
     Serial.println("\n***\n*** Main power online\n***");
