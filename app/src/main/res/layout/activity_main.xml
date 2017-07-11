@@ -10,7 +10,8 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintWidth_default="wrap"
-    tools:context="com.rnd.helius.MainActivity">
+    tools:context="com.rnd.helius.MainActivity"
+    >
 
     <TextView
         android:id="@+id/textView4"
@@ -18,11 +19,13 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
         android:text="Light Sensors"
+        android:textSize="24sp"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        tools:layout_editor_absoluteX="176dp"
-        tools:layout_editor_absoluteY="16dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ProgressBar
         android:id="@+id/powerBar"
@@ -32,14 +35,14 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignTop="@+id/textView"
-        android:progress="50"
-        tools:layout_editor_absoluteX="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:progress="50"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        tools:layout_editor_absoluteX="8dp" />
 
     <TextView
         android:id="@+id/textView"
@@ -47,14 +50,15 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/gridLayout"
         android:layout_centerHorizontal="true"
-        android:text="Power Output"
-        tools:layout_editor_absoluteX="149dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/gridLayout"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Power Output"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gridLayout"
+        tools:layout_editor_absoluteX="149dp" />
 
     <TextView
         android:id="@+id/powerText"
@@ -62,13 +66,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/powerBar"
         android:layout_centerHorizontal="true"
-        android:text="10W"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/powerBar"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:text="10W"
+        android:textSize="30sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/powerBar" />
 
     <ToggleButton
         android:id="@+id/powerButton"
@@ -77,13 +82,14 @@
         android:layout_alignEnd="@+id/textView"
         android:layout_alignRight="@+id/textView"
         android:layout_below="@+id/powerText"
-        android:text="ToggleButton"
-        android:layout_marginTop="7dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="7dp"
+        android:text="ToggleButton"
+        android:textSize="24sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <TextView
         android:id="@+id/textView3"
@@ -95,6 +101,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:text="System"
+        android:textSize="24sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/powerText" />
@@ -103,59 +110,13 @@
         android:id="@+id/findButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/mapButton"
-        android:layout_alignEnd="@+id/mapButton"
-        android:layout_alignRight="@+id/mapButton"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
         android:text="Find Helius"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/powerButton"
-        android:layout_marginRight="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
-
-    <GridLayout
-        android:id="@+id/gridLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:alignmentMode="alignBounds"
-        android:columnCount="2"
-        android:gravity="center"
-        android:rowCount="2"
-        tools:layout_editor_absoluteX="104dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" >
-
-        <Button
-            android:id="@+id/ldr0"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="50" />
-
-        <Button
-            android:id="@+id/ldr1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="50" />
-
-        <Button
-            android:id="@+id/ldr2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="50" />
-
-        <Button
-            android:id="@+id/ldr3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="50" />
-    </GridLayout>
+        app:layout_constraintTop_toBottomOf="@+id/powerButton" />
 
     <Button
         android:id="@+id/helpButton"
@@ -171,5 +132,62 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/findButton"
         app:layout_constraintVertical_bias="0.0" />
+
+    <GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="178dp"
+        android:layout_height="152dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:alignmentMode="alignBounds"
+        android:clipChildren="false"
+        android:columnCount="2"
+        android:gravity="center"
+        android:rowCount="2"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        tools:layout_editor_absoluteX="96dp">
+
+        <Button
+            android:id="@+id/ldr0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_vertical|fill_horizontal"
+            android:gravity="center"
+            android:text="50"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/ldr1"
+            android:layout_width="wrap_content"
+            android:layout_height="76dp"
+            android:layout_gravity="fill_vertical|fill_horizontal"
+            android:gravity="center"
+            android:text="50"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/ldr2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_vertical|fill_horizontal"
+            android:gravity="center"
+            android:text="50"
+            android:textSize="24sp" />
+
+        <Button
+            android:id="@+id/ldr3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_vertical|fill_horizontal"
+            android:gravity="center"
+            android:text="50"
+            android:textSize="24sp" />
+    </GridLayout>
 
 </android.support.constraint.ConstraintLayout>
