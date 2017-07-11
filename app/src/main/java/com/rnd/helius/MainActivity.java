@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,7 +16,9 @@ public class MainActivity extends AppCompatActivity {
     Button ldr2Button;
     Button ldr3Button;
     Button powerButton;
-    ProgressBar power;
+    Button helpButton;
+    ProgressBar powerBar;
+    TextView powerText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,8 +30,10 @@ public class MainActivity extends AppCompatActivity {
         ldr2Button = (Button) findViewById(R.id.ldr2);
         ldr3Button = (Button) findViewById(R.id.ldr3);
 
-        power = (ProgressBar) findViewById(R.id.powerBar);
-        power.setProgress(50);
+        powerBar = (ProgressBar) findViewById(R.id.powerBar);
+        powerBar.setProgress(50);
+
+        powerText = (TextView) findViewById(R.id.powerText);
 
         powerButton = (Button) findViewById(R.id.powerButton);
         powerButton.setOnClickListener(new View.OnClickListener() {
@@ -41,6 +46,14 @@ public class MainActivity extends AppCompatActivity {
         findButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        helpButton = (Button) findViewById(R.id.helpButton);
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), HelpActivity.class);
                 startActivity(intent);
             }
         });
