@@ -39,10 +39,11 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:progress="50"
+        android:scaleY="4"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:layout_editor_absoluteX="8dp" />
+        app:layout_constraintTop_toBottomOf="@+id/powerText"
+        app:layout_constraintHorizontal_bias="0.0" />
 
     <TextView
         android:id="@+id/textView"
@@ -73,7 +74,7 @@
         android:textSize="30sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/powerBar" />
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <ToggleButton
         android:id="@+id/powerButton"
@@ -99,12 +100,12 @@
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="17dp"
         android:text="System"
         android:textSize="24sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/powerText" />
+        app:layout_constraintTop_toBottomOf="@+id/powerBar" />
 
     <Button
         android:id="@+id/findButton"
@@ -135,27 +136,25 @@
 
     <GridLayout
         android:id="@+id/gridLayout"
-        android:layout_width="178dp"
-        android:layout_height="152dp"
+        android:layout_width="238dp"
+        android:layout_height="198dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="7dp"
         android:alignmentMode="alignBounds"
         android:clipChildren="false"
         android:columnCount="2"
         android:gravity="center"
         android:rowCount="2"
-        app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-        tools:layout_editor_absoluteX="96dp">
+        app:layout_constraintTop_toBottomOf="@+id/textView4">
 
         <Button
             android:id="@+id/ldr0"
-            android:layout_width="wrap_content"
+            android:layout_width="121dp"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
@@ -165,7 +164,7 @@
         <Button
             android:id="@+id/ldr1"
             android:layout_width="wrap_content"
-            android:layout_height="76dp"
+            android:layout_height="100dp"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
             android:text="50"
