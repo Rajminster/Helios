@@ -69,6 +69,7 @@
 #define NUM_LOOP     2 // number of loops to make when searching for The Sun
 #define LOW_READ    40 // LDR reading which is considered low
 #define LOW_TIMES   10 // assume night when all LDRs read low this many times
+#define NUM_LDRS     4 // number of LDR sensors
 
 #define READ_DELAY  1000 // millisecond delay between LDR readings
 #define WRITE_DELAY 5000 // millisecond delay for large Servo motor movement
@@ -95,7 +96,6 @@ class SolarTracking
 {
     public:
         /* CONSTANTS */
-        const u_int8_t NUM_LDRS = 4; // number of LDR sensors
         const u_int16_t PAN_INIT = 0; // initial angle for pan Servo motor
         const u_int16_t PAN_MAX = 360; // upper bound for pan Servo motor angle
         const u_int8_t TILT_INIT = 45; // initial angle for tilt Servo motor
