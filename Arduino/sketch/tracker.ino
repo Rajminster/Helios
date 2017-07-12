@@ -53,7 +53,7 @@ bool sleeping;
  * every DELAY milliseconds. If there is a change in value, any peripheral
  * device connected to this Service via Bluetooth will be notified.
  */
-void update_ldr_readings(int16*_t readings)
+void update_ldr_readings(int16_t* readings)
 {
     int i;
 
