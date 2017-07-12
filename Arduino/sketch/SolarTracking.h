@@ -60,20 +60,17 @@
 #ifndef SOLARTRACKING_H_
 #define SOLARTRACKING_H_
 
-/* INCLUDE */
-#include <Servo.h>
-
 /* DEFINES */
 #define SEARCH_TOL 500 // higher tolerance for initially finding The Sun
 #define TRACK_DIFF  50 // reading difference tolerance when tracking The Sun
-#define NUM_LOOP     2 // number of loops to make when searching for The Sun
 #define LOW_READ    40 // LDR reading which is considered low
 #define LOW_TIMES   10 // assume night when all LDRs read low this many times
 #define NUM_LDRS     4 // number of LDR sensors
+#define NUM_LOOP     2 // number of loops to make when searching for The Sun
 
 #define READ_DELAY  1000 // millisecond delay between LDR readings
-#define WRITE_DELAY 5000 // millisecond delay for large Servo motor movement
-#define SLEEP_DELAY 1000 // millisecond duration to sleep
+#define WRITE_DELAY 2000 // millisecond delay for Servo motor movement
+#define SLEEP_DELAY 3000 // millisecond duration for sleep
 
 /* ENUM */
 /*
