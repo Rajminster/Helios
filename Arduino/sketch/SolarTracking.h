@@ -96,10 +96,10 @@ class SolarTracking
 {
     public:
         /* CONSTANTS */
-        const u_int16_t PAN_INIT = 0; // initial angle for pan Servo motor
-        const u_int16_t PAN_MAX = 360; // upper bound for pan Servo motor angle
-        const u_int8_t TILT_INIT = 45; // initial angle for tilt Servo motor
-        const u_int8_t TILT_MAX = 180; // upper bound for tilt Servo motor angle
+        static const u_int16_t PAN_INIT = 0; // pan Servo motor initial angle
+        static const u_int16_t PAN_MAX = 360; // pan Servo motor upper bound
+        static const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
+        static const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
 
         /* PROTOTYPES */
         /*
