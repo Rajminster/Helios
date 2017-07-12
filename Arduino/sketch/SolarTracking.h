@@ -121,7 +121,7 @@ class SolarTracking
          * Wait for WRITE_DELAY milliseconds for both motors to go to their
          * written values.
          */
-        void setup();
+        static void setup();
 
         /*
          * Puts the Arduino 101 into a low power sleep mode.
@@ -138,7 +138,7 @@ class SolarTracking
          * will continue to do so as long as the deveice needs to be in sleep
          * mode.
          */
-        void sleep();
+        static void sleep();
 
         /*
          * Makes the pane containing the LDRs and solar panels face what this
@@ -156,7 +156,7 @@ class SolarTracking
          * assumption of sunset was correct) should be the general direction of
          * sunrise.
          */
-        void turn_east();
+        static void turn_east();
 
         /*
          * Read a single LDR sensor and return that value as a signed short int.
@@ -165,7 +165,7 @@ class SolarTracking
          * value of an analogRead of that analog pin. The value of the sensor
          * read is printed as well.
          */
-        int16_t read_ldr(sensor ldr);
+        static int16_t read_ldr(sensor ldr);
 
         /*
          * Reads all LDR sensors, outputs, and returns int16_t pointer with
@@ -180,7 +180,7 @@ class SolarTracking
          * where NW, NE, SW, and SE are the labeled cardinal directions on the
          * pane near each LDR.
          */
-        int16_t* read_ldr_all();
+        static int16_t* read_ldr_all();
 
         /*
          * Read values from the NW and SW labeled LDRs, read values from the NE
@@ -195,7 +195,7 @@ class SolarTracking
          * Eastern labeled LDRs; if it's greater than +tolerance, then the
          * Western labeled LDRs are receiving more light.
          */
-        int16_t _get_dh();
+        static int16_t _get_dh();
 
         /*
          * Read values from the NW and NE labeled LRDs, read values from the SW
@@ -210,7 +210,7 @@ class SolarTracking
          * is greater than +tolerance, then the Northern labeled LDRs are
          * receiving more sunlight, so the tilt angle is increased.
          */
-        int16_t _get_dv();
+        static int16_t _get_dv();
 
         /*
          * Search for The Sun or a significantly intense source of light,
@@ -238,7 +238,7 @@ class SolarTracking
          * to indicate that the device should go immediately to sleep mode in
          * the tracker.ino loop method.
          */
-        bool search();
+        static bool search();
 
         /*
          * Once a power source (presumably The Sun) has been found, this method
@@ -265,7 +265,7 @@ class SolarTracking
          * but after rotating the device then a tilt is required. Because of
          * this, panning the device first is required.
          */
-        void track();
+        static void track();
 
         /*
          * Rotates the pane containing the LDR cluster and solar panels either
@@ -283,7 +283,7 @@ class SolarTracking
          * position in the sky does not move rather quickly with respect to the
          * area the LDRs face.
          */
-        void pan_pane(u_int16_t angle);
+        static void pan_pane(u_int16_t angle);
 
         /*
          * Updates the angle of tilt for the pane containing the LDRs and solar
@@ -295,7 +295,7 @@ class SolarTracking
          * change in pane tilt is needed as The Sun's position in the sky
          * changes slowly over time.
          */
-        void tilt_pane(u_int8_t angle);
+        static void tilt_pane(u_int8_t angle);
 
     private:
         /* INSTANCE VARIABLES */
@@ -303,10 +303,10 @@ class SolarTracking
          * Servo motor for panning the entire panel system, must be able to pan
          * in 360 degrees
          */
-        Servo pan;
+        static Servo pan;
 
         /* Current angle for the pan Servo motor */
-        u_int16_t pan_angle;
+        static u_int16_t pan_angle;
 
         /*
          * Servo motor for tilting the entire pane where the panels and LDRs are
@@ -315,10 +315,10 @@ class SolarTracking
          * the pane would be perpendicular to the ground, facing the opposite
          * direction)
          */
-        Servo tilt;
+        static Servo tilt;
 
         /* Current angle for the pane Servo motor */
-        u_int8_t tilt_angle;
+        static u_int8_t tilt_angle;
 };
 
 #endif
