@@ -296,29 +296,6 @@ class SolarTracking
          * changes slowly over time.
          */
         static void tilt_pane(u_int8_t angle);
-
-    private:
-        /* INSTANCE VARIABLES */
-        /*
-         * Servo motor for panning the entire panel system, must be able to pan
-         * in 360 degrees
-         */
-        static Servo pan;
-
-        /* Current angle for the pan Servo motor */
-        static u_int16_t pan_angle;
-
-        /*
-         * Servo motor for tilting the entire pane where the panels and LDRs are
-         * located. This motor will only move from an angle of 0 degrees (where
-         * the pane would be perpendicular to the ground) to 180 degrees (where
-         * the pane would be perpendicular to the ground, facing the opposite
-         * direction)
-         */
-        static Servo tilt;
-
-        /* Current angle for the pane Servo motor */
-        static u_int8_t tilt_angle;
 };
 
 #endif
