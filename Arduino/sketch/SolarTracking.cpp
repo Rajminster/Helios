@@ -1,11 +1,11 @@
 #include <Arduino.h>
 #include <Power.h>
+#include <Servo.h>
 #include <stdlib.h>
 #include <wsrc.h>
 
 #include "SolarTracking.h"
 
-/* INSTANCE VARIABLES */
 /*
  * Servo motor for panning the entire panel system, must be able to pan
  * in 360 degrees
@@ -34,8 +34,8 @@ void SolarTracking::setup()
     Serial.println("\n***\n*** Initializing pin connections\n***");
 
     /* Setup digital pins for Servo motors */
-    pan.attach(7);
-    tilt.attach(7);
+    pan.attach(9);
+    tilt.attach(10);
 
     /* Move motors to their starting positions */
     Serial.println("\n***\n*** Motors approaching initial positions\n***");
@@ -71,7 +71,7 @@ int16_t SolarTracking::read_ldr(sensor ldr)
     int16_t reading = analogRead(ldr);
     delay(1); // delay to ensure read is complete
     Serial.print("\n***\n*** Reading from ");
-    Serial.print((sensor) ldr);
+    Serial.print(ldr);
     Serial.print(" LDR: ");
     Serial.print(reading);
     Serial.println("\n***");
@@ -213,7 +213,7 @@ void SolarTracking::pan_pane(u_int16_t angle)
     /* Make sure pan_angle is within the range 0 to 360 */
     pan_angle = angle % (PAN_MAX + 1);
     pan.write(pan_angle);
-    delay(50);
+    delay(WRITE_DELAY);
 }
 
 void SolarTracking::tilt_pane(u_int8_t angle)
@@ -222,6 +222,6 @@ void SolarTracking::tilt_pane(u_int8_t angle)
     if (angle <= TILT_MAX) {
         tilt_angle = angle;
         tilt.write(tilt_angle);
-        delay(50); // allow for motor to finish moving
+        delay(WRITE_DELAY);
     }
 }
