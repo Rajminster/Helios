@@ -22,6 +22,9 @@ bool sleeping;
 
 void setup()
 {
+    Serial.end();
+    delay(100);
+
     /* Setup baud rate, pins, interrupt handling, and initialize Servo angles */
     SolarTracking::setup();
 
