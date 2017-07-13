@@ -138,6 +138,7 @@ bool SolarTracking::search()
             }
             Serial.println("\n*** No significant power source detected\n***");
             pan_pane(pan_angle + 5);
+            delay(WRITE_DELAY);
             temp_angle += 5;
         }
         temp_angle = 0;
@@ -213,7 +214,6 @@ void SolarTracking::pan_pane(u_int16_t angle)
     /* Make sure pan_angle is within the range 0 to 360 */
     pan_angle = angle % (PAN_MAX + 1);
     pan.write(pan_angle);
-    delay(WRITE_DELAY);
 }
 
 void SolarTracking::tilt_pane(u_int8_t angle)
@@ -222,6 +222,5 @@ void SolarTracking::tilt_pane(u_int8_t angle)
     if (angle <= TILT_MAX) {
         tilt_angle = angle;
         tilt.write(tilt_angle);
-        delay(WRITE_DELAY);
     }
 }
