@@ -57,8 +57,8 @@
  * AUTHOR:
  * Nikola Istvanic
  */
-#ifndef SOLARTRACKING_H_
-#define SOLARTRACKING_H_
+#ifndef SolarTracking_h
+#define SolarTracking_h
 
 /* DEFINES */
 #define SEARCH_TOL 500 // higher tolerance for initially finding The Sun
@@ -88,211 +88,228 @@ typedef unsigned char u_int8_t; // 8-bit unsigned integer [0 - 255]
 typedef signed short int16_t; // 16-bit signed integer [-32768 - 32767]
 typedef unsigned short u_int16_t; // 16-bit unsigned integer [0 - 65535]
 
-/* CLASS */
-class SolarTracking
-{
-    public:
-        /* CONSTANTS */
-        static const u_int16_t PAN_INIT = 0; // pan Servo motor initial angle
-        static const u_int16_t PAN_MAX = 360; // pan Servo motor upper bound
-        static const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
-        static const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
+/* CONSTANTS */
+const u_int16_t PAN_INIT = 0; // pan Servo motor initial angle
+const u_int16_t PAN_MAX = 360; // pan Servo motor upper bound
+const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
+const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
 
-        /* PROTOTYPES */
-        /*
-         * Setup all necessary variables to their appropriate starting values as
-         * this method is called first on upload/Arduino 101 boot.
-         *
-         * Set baud rate as 9600.
-         *
-         * Attach pan and tilt Servo motor pins to their board values; this is
-         * done in this library because the Servo motor variables must be
-         * defined in SolarTracker.cpp.
-         *
-         * After the write digital pins have been attached, write the correct
-         * starting angles for both motors. For the tilt Servo motor, this angle
-         * will be 0 degrees (meaning the pane with the LDRs and solar panels
-         * will be perpendicular to the ground); for the pan Servo motor, this
-         * angle will also be 0 degrees
-         *
-         * Wait for WRITE_DELAY milliseconds for both motors to go to their
-         * written values.
-         */
-        static void setup();
+/* GLOBAL VARIABLES */
+/*
+ * Servo motor for panning the entire panel system, must be able to pan
+ * in 360 degrees
+ */
+Servo pan;
 
-        /*
-         * Puts the Arduino 101 into a low power sleep mode.
-         *
-         * The Arduino 101 enters a sleep mode where significantly less power is
-         * used. The device only goes to sleep for a finite amount of time which
-         * is defined in SolarTracking.h. This duration, SLEEP_DURATION, is the
-         * amount of milliseconds the device will sleep for.
-         *
-         * During normal execution, if the Arduino 101 needs to go to sleep,
-         * for every call to loop, the device will check if it needs to exit
-         * this deep sleep. If so, it will continue tracking The Sun; otherwise
-         * the device will enter this deep sleep mode for SLEEP_DURATION and
-         * will continue to do so as long as the deveice needs to be in sleep
-         * mode.
-         */
-        static void sleep();
+/* Current angle for the pan Servo motor */
+u_int16_t pan_angle;
 
-        /*
-         * Makes the pane containing the LDRs and solar panels face what this
-         * library thinks is the direction of sunrise, East.
-         *
-         * Whenever the device is facing sunset and it captures the last rays of
-         * sunlight, the LDRs will all measure a low reading after a certain
-         * period of time. This library sees these conditions as reason enough
-         * to turn the device around in order to face the approximate direction
-         * of sunrise.
-         *
-         * The angle which the device will now face is the current angle + 180
-         * degrees mod 360 so the value will be from 0 to 359. This new angle
-         * should make the device face the opposite direction which (if the
-         * assumption of sunset was correct) should be the general direction of
-         * sunrise.
-         */
-        static void turn_east();
+/*
+ * Servo motor for tilting the entire pane where the panels and LDRs are
+ * located. This motor will only move from an angle of 0 degrees (where
+ * the pane would be perpendicular to the ground) to 180 degrees (where
+ * the pane would be perpendicular to the ground, facing the opposite
+ * direction)
+ */
+Servo tilt;
 
-        /*
-         * Read a single LDR sensor and return that value as a signed short int.
-         *
-         * This method takes in an enum which is declared above and returns the
-         * value of an analogRead of that analog pin. The value of the sensor
-         * read is printed as well.
-         */
-        static int16_t read_ldr(sensor ldr);
+/* Current angle for the pane Servo motor */
+u_int8_t tilt_angle;
 
-        /*
-         * Reads all LDR sensors, outputs, and returns int16_t pointer with
-         * these values.
-         *
-         * The signed short pointer will be in the following format:
-         *     Index 0: NW LDR reading
-         *     Index 1: NE LDR reading
-         *     Index 2: SW LDR reading
-         *     Index 3: SE LDR reading
-         *
-         * where NW, NE, SW, and SE are the labeled cardinal directions on the
-         * pane near each LDR.
-         */
-        static int16_t* read_ldr_all();
+/* PROTOTYPES */
+/*
+ * Setup all necessary variables to their appropriate starting values as
+ * this method is called first on upload/Arduino 101 boot.
+ *
+ * Set baud rate as 9600.
+ *
+ * Attach pan and tilt Servo motor pins to their board values; this is
+ * done in this library because the Servo motor variables must be
+ * defined in SolarTracker.cpp.
+ *
+ * After the write digital pins have been attached, write the correct
+ * starting angles for both motors. For the tilt Servo motor, this angle
+ * will be 0 degrees (meaning the pane with the LDRs and solar panels
+ * will be perpendicular to the ground); for the pan Servo motor, this
+ * angle will also be 0 degrees
+ *
+ * Wait for WRITE_DELAY milliseconds for both motors to go to their
+ * written values.
+ */
+void setup();
 
-        /*
-         * Read values from the NW and SW labeled LDRs, read values from the NE
-         * and SE LDRs, take average of each, subtract Eastern average from
-         * Western average, and return.
-         *
-         * If this value is between a -tolerance and +tolerance, then there
-         * isn't a large enough disparity between Western and Eastern LDR
-         * readings to cause the pane to move.
-         *
-         * If this value is below -tolerance, then there is more sunlight on the
-         * Eastern labeled LDRs; if it's greater than +tolerance, then the
-         * Western labeled LDRs are receiving more light.
-         */
-        static int16_t _get_dh();
+/*
+ * Puts the Arduino 101 into a low power sleep mode.
+ *
+ * The Arduino 101 enters a sleep mode where significantly less power is
+ * used. The device only goes to sleep for a finite amount of time which
+ * is defined in SolarTracking.h. This duration, SLEEP_DURATION, is the
+ * amount of milliseconds the device will sleep for.
+ *
+ * During normal execution, if the Arduino 101 needs to go to sleep,
+ * for every call to loop, the device will check if it needs to exit
+ * this deep sleep. If so, it will continue tracking The Sun; otherwise
+ * the device will enter this deep sleep mode for SLEEP_DURATION and
+ * will continue to do so as long as the deveice needs to be in sleep
+ * mode.
+ */
+void sleep();
 
-        /*
-         * Read values from the NW and NE labeled LRDs, read values from the SW
-         * and SE labeled LDRs, take average of each, subtract Southern average
-         * from Northern average, and return.
-         *
-         * If this value is between a -tolerance and +tolerance, then there
-         * is no need to change the angle of pane tilt.
-         *
-         * If this value is below -tolerance, then there is more sunlight on the
-         * Southern labeled LDRs, so the tilt angle is decreased; if the value
-         * is greater than +tolerance, then the Northern labeled LDRs are
-         * receiving more sunlight, so the tilt angle is increased.
-         */
-        static int16_t _get_dv();
+/*
+ * Makes the pane containing the LDRs and solar panels face what this
+ * library thinks is the direction of sunrise, East.
+ *
+ * Whenever the device is facing sunset and it captures the last rays of
+ * sunlight, the LDRs will all measure a low reading after a certain
+ * period of time. This library sees these conditions as reason enough
+ * to turn the device around in order to face the approximate direction
+ * of sunrise.
+ *
+ * The angle which the device will now face is the current angle + 180
+ * degrees mod 360 so the value will be from 0 to 359. This new angle
+ * should make the device face the opposite direction which (if the
+ * assumption of sunset was correct) should be the general direction of
+ * sunrise.
+ */
+void turn_east();
 
-        /*
-         * Search for The Sun or a significantly intense source of light,
-         * starting at the initial angle for the pan Servo motor, rotating
-         * clockwise.
-         *
-         * Tolerance for this method is much higher in order to be sure that the
-         * sun is what's being found.
-         *
-         * The pan Servo motor will start at degree 0, begin to move clockwise,
-         * and search for a point where there is a difference in either Northern
-         * labeled LDRs and Southern labeled LDRs or Western labeled LDRs and
-         * Eastern labeled LDRs which has magnitude greater than SEARCH_TOL.
-         * Once this point is reached, the device switches to tracking The Sun
-         * with more precise pan and tilt Servo motor movement.
-         *
-         * If the device makes NUM_LOOP full loops without finding a
-         * significantly bright source of light, the device will be placed in
-         * low power sleep mode.
-         *
-         * If a power source is found, then this method will return 0. This
-         * return value is used in the sketch as the value for a flag which
-         * determines if the device should be sleeping or actively tracking The
-         * Sun. If a power source is not found, then this method will return 1
-         * to indicate that the device should go immediately to sleep mode in
-         * the tracker.ino loop method.
-         */
-        static bool search();
+/*
+ * Read a single LDR sensor and return that value as a signed short int.
+ *
+ * This method takes in an enum which is declared above and returns the
+ * value of an analogRead of that analog pin. The value of the sensor
+ * read is printed as well.
+ */
+int16_t read_ldr(sensor ldr);
 
-        /*
-         * Once a power source (presumably The Sun) has been found, this method
-         * ensures the cluster of LDRs directly faces it for the duration of the
-         * day.
-         *
-         * For example, let The Sun be in the direct path of the LDR cluster and
-         * let the angle of pane tilt be less than or equal to 90 degrees. If it
-         * were to move say West and the Eastern labeled LDRs measure more light
-         * than the Western labeled LDRs as a result. Then the device would have
-         * to rotate counterclockwise. If the Western labeled LDRs receive more
-         * sunlight, then the device would have to rotate clockwise.
-         *
-         * If the Northern labeled LDRs receive more sunlight, then the angle of
-         * pane tilt should increase; otherwise it should decrease.
-         *
-         * When tilting or rotating the device, the tilt_pane or rotate_pane
-         * methods (see below) are used. They only change the angle of rotation
-         * or tilt by one degree at a time because this small change in angle is
-         * all that is needed when tracking The Sun.
-         *
-         * Tracking first handles rotating the device before handling tilting
-         * pane because certain solar positions may not require a tilt at first,
-         * but after rotating the device then a tilt is required. Because of
-         * this, panning the device first is required.
-         */
-        static void track();
+/*
+ * Reads all LDR sensors, outputs, and returns int16_t pointer with
+ * these values.
+ *
+ * The signed short pointer will be in the following format:
+ *     Index 0: NW LDR reading
+ *     Index 1: NE LDR reading
+ *     Index 2: SW LDR reading
+ *     Index 3: SE LDR reading
+ *
+ * where NW, NE, SW, and SE are the labeled cardinal directions on the
+ * pane near each LDR.
+ */
+int16_t* read_ldr_all();
 
-        /*
-         * Rotates the pane containing the LDR cluster and solar panels either
-         * clockwise or counterclockwise, depending on how the parameter
-         * supplied compares to the variable pan_angle.
-         *
-         * In the search method, the pan_angle is changed by 5 degrees clockwise
-         * in order to rotate the entire device quickly to check if this angle
-         * a significant light source can be found.
-         *
-         * In the track method by contrast, the pan_angle variable +/- 1 is
-         * supplied as the parameter for this method. This will rotate the
-         * device by one degree in order to only minutely change its
-         * orientation. This one degree is all that is necessary as The Sun's
-         * position in the sky does not move rather quickly with respect to the
-         * area the LDRs face.
-         */
-        static void pan_pane(u_int16_t angle);
+/*
+ * Read values from the NW and SW labeled LDRs, read values from the NE
+ * and SE LDRs, take average of each, subtract Eastern average from
+ * Western average, and return.
+ *
+ * If this value is between a -tolerance and +tolerance, then there
+ * isn't a large enough disparity between Western and Eastern LDR
+ * readings to cause the pane to move.
+ *
+ * If this value is below -tolerance, then there is more sunlight on the
+ * Eastern labeled LDRs; if it's greater than +tolerance, then the
+ * Western labeled LDRs are receiving more light.
+ */
+int16_t _get_dh();
 
-        /*
-         * Updates the angle of tilt for the pane containing the LDRs and solar
-         * panels by either increasing or decreasing this angle.
-         *
-         * This method is called in the search and track methods in order to
-         * tilt the pane either up or down to point more directly toward The
-         * Sun. In track, the change in angle is always 1 because only a small
-         * change in pane tilt is needed as The Sun's position in the sky
-         * changes slowly over time.
-         */
-        static void tilt_pane(u_int8_t angle);
-};
+/*
+ * Read values from the NW and NE labeled LRDs, read values from the SW
+ * and SE labeled LDRs, take average of each, subtract Southern average
+ * from Northern average, and return.
+ *
+ * If this value is between a -tolerance and +tolerance, then there
+ * is no need to change the angle of pane tilt.
+ *
+ * If this value is below -tolerance, then there is more sunlight on the
+ * Southern labeled LDRs, so the tilt angle is decreased; if the value
+ * is greater than +tolerance, then the Northern labeled LDRs are
+ * receiving more sunlight, so the tilt angle is increased.
+ */
+int16_t _get_dv();
+
+/*
+ * Search for The Sun or a significantly intense source of light,
+ * starting at the initial angle for the pan Servo motor, rotating
+ * clockwise.
+ *
+ * Tolerance for this method is much higher in order to be sure that the
+ * sun is what's being found.
+ *
+ * The pan Servo motor will start at degree 0, begin to move clockwise,
+ * and search for a point where there is a difference in either Northern
+ * labeled LDRs and Southern labeled LDRs or Western labeled LDRs and
+ * Eastern labeled LDRs which has magnitude greater than SEARCH_TOL.
+ * Once this point is reached, the device switches to tracking The Sun
+ * with more precise pan and tilt Servo motor movement.
+ *
+ * If the device makes NUM_LOOP full loops without finding a
+ * significantly bright source of light, the device will be placed in
+ * low power sleep mode.
+ *
+ * If a power source is found, then this method will return 0. This
+ * return value is used in the sketch as the value for a flag which
+ * determines if the device should be sleeping or actively tracking The
+ * Sun. If a power source is not found, then this method will return 1
+ * to indicate that the device should go immediately to sleep mode in
+ * the tracker.ino loop method.
+ */
+bool search();
+
+/*
+ * Once a power source (presumably The Sun) has been found, this method
+ * ensures the cluster of LDRs directly faces it for the duration of the
+ * day.
+ *
+ * For example, let The Sun be in the direct path of the LDR cluster and
+ * let the angle of pane tilt be less than or equal to 90 degrees. If it
+ * were to move say West and the Eastern labeled LDRs measure more light
+ * than the Western labeled LDRs as a result. Then the device would have
+ * to rotate counterclockwise. If the Western labeled LDRs receive more
+ * sunlight, then the device would have to rotate clockwise.
+ *
+ * If the Northern labeled LDRs receive more sunlight, then the angle of
+ * pane tilt should increase; otherwise it should decrease.
+ *
+ * When tilting or rotating the device, the tilt_pane or rotate_pane
+ * methods (see below) are used. They only change the angle of rotation
+ * or tilt by one degree at a time because this small change in angle is
+ * all that is needed when tracking The Sun.
+ *
+ * Tracking first handles rotating the device before handling tilting
+ * pane because certain solar positions may not require a tilt at first,
+ * but after rotating the device then a tilt is required. Because of
+ * this, panning the device first is required.
+ */
+void track();
+
+/*
+ * Rotates the pane containing the LDR cluster and solar panels either
+ * clockwise or counterclockwise, depending on how the parameter
+ * supplied compares to the variable pan_angle.
+ *
+ * In the search method, the pan_angle is changed by 5 degrees clockwise
+ * in order to rotate the entire device quickly to check if this angle
+ * a significant light source can be found.
+ *
+ * In the track method by contrast, the pan_angle variable +/- 1 is
+ * supplied as the parameter for this method. This will rotate the
+ * device by one degree in order to only minutely change its
+ * orientation. This one degree is all that is necessary as The Sun's
+ * position in the sky does not move rather quickly with respect to the
+ * area the LDRs face.
+ */
+void pan_pane(u_int16_t angle);
+
+/*
+ * Updates the angle of tilt for the pane containing the LDRs and solar
+ * panels by either increasing or decreasing this angle.
+ *
+ * This method is called in the search and track methods in order to
+ * tilt the pane either up or down to point more directly toward The
+ * Sun. In track, the change in angle is always 1 because only a small
+ * change in pane tilt is needed as The Sun's position in the sky
+ * changes slowly over time.
+ */
+void tilt_pane(u_int8_t angle);
 
 #endif
