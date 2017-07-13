@@ -113,49 +113,49 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        try {
-            //Don't leave Bluetooth sockets open when leaving activity
-            btSocket.close();
-        } catch (IOException e2) {
-            //insert code to deal with this
-        }
+//        try {
+//            //Don't leave Bluetooth sockets open when leaving activity
+//            btSocket.close();
+//        } catch (IOException e2) {
+//            //insert code to deal with this
+//        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
 
-        //Get MAC address from DeviceListActivity via intent
-        Intent intent = getIntent();
-
-        //Get the MAC address from the DeviceListActivty via EXTRA
-        address = tracker.getAddress();
-
-        //create device and set the MAC address
-        //BluetoothDevice device = btAdapter.getRemoteDevice(address);
-
-        try {
-            btSocket = tracker.createRfcommSocketToServiceRecord(UUID.fromString("6E400001-B5A3-F393-E0A9-E50E24DCCA9E"));
-        } catch (IOException e) {
-            Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_LONG).show();
-        }
-        // Establish the Bluetooth socket connection.
-        try {
-            btSocket.connect();
-        } catch (IOException e) {
-            try {
-                btSocket.close();
-            } catch (IOException e2) {
-                //insert code to deal with this
-            }
-        }
-        mConnectedThread = new ConnectedThread(btSocket);
-        mConnectedThread.start();
-        mConnectedThread.run();
-
-        //I send a character when resuming.beginning transmission to check device is connected
-        //If it is not an exception will be thrown in the write method and finish() will be called
-        //mConnectedThread.write("x");
+//        //Get MAC address from DeviceListActivity via intent
+//        Intent intent = getIntent();
+//
+//        //Get the MAC address from the DeviceListActivty via EXTRA
+//        address = tracker.getAddress();
+//
+//        //create device and set the MAC address
+//        //BluetoothDevice device = btAdapter.getRemoteDevice(address);
+//
+//        try {
+//            btSocket = tracker.createRfcommSocketToServiceRecord(UUID.fromString("6E400001-B5A3-F393-E0A9-E50E24DCCA9E"));
+//        } catch (IOException e) {
+//            Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_LONG).show();
+//        }
+//        // Establish the Bluetooth socket connection.
+//        try {
+//            btSocket.connect();
+//        } catch (IOException e) {
+//            try {
+//                btSocket.close();
+//            } catch (IOException e2) {
+//                //insert code to deal with this
+//            }
+//        }
+//        mConnectedThread = new ConnectedThread(btSocket);
+//        mConnectedThread.start();
+//        mConnectedThread.run();
+//
+//        //I send a character when resuming.beginning transmission to check device is connected
+//        //If it is not an exception will be thrown in the write method and finish() will be called
+//        //mConnectedThread.write("x");
     }
 
     //create new class for connect thread

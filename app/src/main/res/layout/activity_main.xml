@@ -10,7 +10,8 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintWidth_default="wrap"
-    tools:context="com.rnd.helius.MainActivity">
+    tools:context="com.rnd.helius.MainActivity"
+    android:background="#00000F">
 
     <TextView
         android:id="@+id/textView4"
@@ -24,7 +25,8 @@
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:textColor="#FFFFFF"/>
 
     <ProgressBar
         android:id="@+id/powerBar"
@@ -34,13 +36,15 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignTop="@+id/textView"
-        android:layout_marginTop="8dp"
-        android:scaleY="4"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="6dp"
+        android:progress="50"
+        android:scaleY="5"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/powerText"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp" />
+        app:layout_constraintTop_toBottomOf="@+id/powerText" />
 
     <TextView
         android:id="@+id/textView"
@@ -50,13 +54,13 @@
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="0dp"
         android:text="Power Output"
         android:textSize="24sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/gridLayout"
-        tools:layout_editor_absoluteX="149dp" />
+        android:textColor="#FFFFFF"/>
 
     <TextView
         android:id="@+id/powerText"
@@ -66,12 +70,14 @@
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="0dp"
         android:text="10W"
         android:textSize="30sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        android:textColor="#FFFFFF"
+        app:layout_constraintHorizontal_bias="0.501" />
 
     <ToggleButton
         android:id="@+id/powerButton"
@@ -83,9 +89,9 @@
         android:layout_below="@+id/powerText"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="0dp"
         android:text="ToggleButton"
-        android:textSize="24sp"
+        android:textSize="36sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
@@ -98,25 +104,29 @@
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="6dp"
         android:text="System"
         android:textSize="24sp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/powerBar" />
+        app:layout_constraintTop_toBottomOf="@+id/powerBar"
+        android:textColor="#FFFFFF"/>
 
     <Button
         android:id="@+id/findButton"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginRight="15dp"
         android:text="Find Helius"
-        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/powerButton" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintLeft_toRightOf="@+id/powerButton"
+        android:layout_marginLeft="8dp" />
 
     <Button
         android:id="@+id/helpButton"
@@ -124,25 +134,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginLeft="32dp"
         android:text="Help"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/findButton"
-        app:layout_constraintVertical_bias="0.0" />
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintRight_toLeftOf="@+id/powerButton"
+        android:layout_marginRight="8dp" />
 
     <GridLayout
         android:id="@+id/gridLayout"
-        android:layout_width="238dp"
-        android:layout_height="198dp"
+        android:layout_width="365dp"
+        android:layout_height="294dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="7dp"
+        android:layout_marginTop="0dp"
         android:alignmentMode="alignBounds"
         android:clipChildren="false"
         android:columnCount="2"
@@ -150,47 +160,48 @@
         android:rowCount="2"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4">
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        app:layout_constraintHorizontal_bias="0.666">
 
         <Button
             android:id="@+id/ldr0"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="121dp"
-            android:layout_height="wrap_content"
+            android:layout_height="151dp"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
             android:text="50"
-            android:textSize="24sp" />
+            android:textSize="68sp" />
 
         <Button
             android:id="@+id/ldr1"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
+            android:layout_width="172dp"
             android:layout_height="100dp"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
             android:text="50"
-            android:textSize="24sp" />
+            android:textSize="68sp" />
 
         <Button
             android:id="@+id/ldr2"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
+            android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
             android:text="50"
-            android:textSize="24sp" />
+            android:textSize="68sp" />
 
         <Button
             android:id="@+id/ldr3"
             style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="167dp"
+            android:layout_height="104dp"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
-            android:text="50"
-            android:textSize="24sp" />
+            android:text="1023"
+            android:textSize="68sp" />
 
     </GridLayout>
 

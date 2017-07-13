@@ -60,7 +60,7 @@ void update_ldr_readings(int16_t* readings)
     /* Check for changes in LDR readings */
     for (i = 0; i < NUM_LDRS; i++) {
         /* Change in LDR measurement */
-        u_int16_t curr_reading = map(new_readings[i], 0, 1023, 0, 100);
+        u_int16_t curr_reading = map(readings[i], 0, 1023, 0, 100);
         if (curr_reading != old_readings[i]) {
             Serial.print("\n***\n*** Updating LDR reading in ");
             Serial.print((sensor) i);
@@ -135,8 +135,8 @@ void run(bool bluetooth)
         SolarTracking::sleep(); // Arduino 101 is now sleeping briefly
     } else {
         /* If all sensors have low readings, increment times_low */
-        if (ldr_readings[0] < LOW_READ && ldr_readings[1] < LOW_READ
-            && ldr_readings[2] < LOW_READ && ldr_readings[3] < LOW_READ) {
+        if (ldr_all[0] < LOW_READ && ldr_all[1] < LOW_READ
+            && ldr_all[2] < LOW_READ && ldr_all[3] < LOW_READ) {
             times_low++;
         } else {
             SolarTracking::track();
