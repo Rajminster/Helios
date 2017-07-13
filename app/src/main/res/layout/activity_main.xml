@@ -10,8 +10,7 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintWidth_default="wrap"
-    tools:context="com.rnd.helius.MainActivity"
-    >
+    tools:context="com.rnd.helius.MainActivity">
 
     <TextView
         android:id="@+id/textView4"
@@ -38,12 +37,11 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        android:progress="50"
         android:scaleY="4"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/powerText"
-        app:layout_constraintHorizontal_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/powerText" />
 
     <TextView
         android:id="@+id/textView"
@@ -78,6 +76,7 @@
 
     <ToggleButton
         android:id="@+id/powerButton"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@+id/textView"
@@ -109,6 +108,7 @@
 
     <Button
         android:id="@+id/findButton"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
@@ -121,6 +121,7 @@
 
     <Button
         android:id="@+id/helpButton"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -154,6 +155,7 @@
 
         <Button
             android:id="@+id/ldr0"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="121dp"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical|fill_horizontal"
@@ -163,6 +165,7 @@
 
         <Button
             android:id="@+id/ldr1"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="100dp"
             android:layout_gravity="fill_vertical|fill_horizontal"
@@ -172,6 +175,7 @@
 
         <Button
             android:id="@+id/ldr2"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical|fill_horizontal"
@@ -181,12 +185,14 @@
 
         <Button
             android:id="@+id/ldr3"
+            style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
             android:text="50"
             android:textSize="24sp" />
+
     </GridLayout>
 
 </android.support.constraint.ConstraintLayout>
