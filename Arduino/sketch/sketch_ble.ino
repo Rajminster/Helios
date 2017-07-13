@@ -100,7 +100,7 @@ void update_ldr_readings(int16_t* readings)
  */
 void run(bool bluetooth)
 {
-    int16_t* ldr_all = SolarTracking::read_ldr_all();
+    int16_t* ldr_all = read_ldr_all();
 
     /* If at least one LDR has a significant reading, stop sleeping */
     if (ldr_all[0] >= LOW_READ || ldr_all[1] >= LOW_READ
@@ -114,7 +114,7 @@ void run(bool bluetooth)
         update_ldr_readings(ldr_all);
         /* TODO
         if (button_pressed) {
-            sleep = SolarTracking::search();
+            sleep = search();
         }
         */
     }
@@ -126,20 +126,20 @@ void run(bool bluetooth)
      */
     if (!sleeping && times_low >= LOW_TIMES) {
         /* Only move motor once */
-        SolarTracking::turn_east(); // face direction of sunrise
+        turn_east(); // face direction of sunrise
         sleeping = true;
     }
 
     /* If The Sun wasn't found or it's night time, only sleep */
     if (sleeping) {
-        SolarTracking::sleep(); // Arduino 101 is now sleeping briefly
+        sleep(); // Arduino 101 is now sleeping briefly
     } else {
         /* If all sensors have low readings, increment times_low */
         if (ldr_all[0] < LOW_READ && ldr_all[1] < LOW_READ
             && ldr_all[2] < LOW_READ && ldr_all[3] < LOW_READ) {
             times_low++;
         } else {
-            SolarTracking::track();
+            track();
         }
         delay(READ_DELAY); // only delay if not sleeping
     }
@@ -175,10 +175,10 @@ void setup()
     // energyChar.setValue(energy_char_array, 2);
 
     /* Setup baud rate, pins, interrupt handling, and initialize Servo angles */
-    SolarTracking::setup();
+    setup();
 
     /* Search for The Sun, sleep if sun wasn't found; track otherwise */
-    sleeping = SolarTracking::search();
+    sleeping = search();
 
     blep.begin();
     Serial.println("\n***\n*** Bluetooth system activated, awaiting peripheral connection\n***");
