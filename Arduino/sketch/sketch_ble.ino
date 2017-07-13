@@ -6,11 +6,11 @@ BLEPeripheral blep;
 BLEService st = BLEService("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 
 /* BLE LDR Characteristics. Read and get notified when value changes */
-BLECharacteristic nw_ldr_char("6E400002-B5A3-F393-E0A9-E50E24DCCA9E", BLRead | BLENotify, 2);
-BLECharacteristic ne_ldr_char("6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLRead | BLENotify, 2);
-BLECharacteristic sw_ldr_char("6E400004-B5A3-F393-E0A9-E50E24DCCA9E", BLRead | BLENotify, 2);
-BLECharacteristic se_ldr_char("6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLRead | BLENotify, 2);
-// BLECharacteristic energy_char("6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLRead | BLENotify, 2);
+BLECharacteristic nw_ldr_char("6E400002-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLENotify, 2);
+BLECharacteristic ne_ldr_char("6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLENotify, 2);
+BLECharacteristic sw_ldr_char("6E400004-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLENotify, 2);
+BLECharacteristic se_ldr_char("6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLENotify, 2);
+// BLECharacteristic energy_char("6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLENotify, 2);
 
 BLECharacteristic characteristics[4] = { nw_ldr_char, ne_ldr_char, sw_ldr_char, se_ldr_char };
 
