@@ -149,7 +149,7 @@ void setup()
 {
     /* Setup Bluetooth connectivity after The Sun has been found */
     blep.setLocalName("Solar Tracker");
-    blep.setAdvertisedServiceUuid(panel_service.uuid()); // add the service UUID
+    blep.setAdvertisedServiceUuid(st.uuid()); // add the service UUID
     blep.addAttribute(st);          // add the BLE service
     blep.addAttribute(nw_ldr_char); // add the LDR Characteristics for all LDRs
     blep.addAttribute(nw_descriptor);
