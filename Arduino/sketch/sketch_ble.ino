@@ -175,7 +175,7 @@ void setup()
     // energyChar.setValue(energy_char_array, 2);
 
     /* Setup baud rate, pins, interrupt handling, and initialize Servo angles */
-    setup();
+    initialize();
 
     /* Search for The Sun, sleep if sun wasn't found; track otherwise */
     sleeping = search();
