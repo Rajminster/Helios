@@ -6,28 +6,7 @@
 
 #include "SolarTracking.h"
 
-/*
- * Servo motor for panning the entire panel system, must be able to pan
- * in 360 degrees
- */
-Servo pan;
-
-/* Current angle for the pan Servo motor */
-u_int16_t pan_angle;
-
-/*
- * Servo motor for tilting the entire pane where the panels and LDRs are
- * located. This motor will only move from an angle of 0 degrees (where
- * the pane would be perpendicular to the ground) to 180 degrees (where
- * the pane would be perpendicular to the ground, facing the opposite
- * direction)
- */
-Servo tilt;
-
-/* Current angle for the pane Servo motor */
-u_int8_t tilt_angle;
-
-void SolarTracking::setup()
+void initialize()
 {
     /* Setup baud rate as 9600 */
     Serial.begin(9600);
@@ -46,7 +25,7 @@ void SolarTracking::setup()
     delay(WRITE_DELAY);
 }
 
-void SolarTracking::sleep()
+void sleep()
 {
     Serial.println("\n***\n*** Shutting down power systems\n***");
 
@@ -57,7 +36,7 @@ void SolarTracking::sleep()
     Serial.println("\n***\n*** Main power online\n***");
 }
 
-void SolarTracking::turn_east()
+void turn_east()
 {
     /* Turn pane around to face direction of sunrise */
     Serial.println("\n***\n*** No power detected, moving panels East\n***");
@@ -66,7 +45,7 @@ void SolarTracking::turn_east()
     delay(WRITE_DELAY); // wait for motors to reach their destinations
 }
 
-int16_t SolarTracking::read_ldr(sensor ldr)
+int16_t read_ldr(sensor ldr)
 {
     int16_t reading = analogRead(ldr);
     delay(1); // delay to ensure read is complete
@@ -78,7 +57,7 @@ int16_t SolarTracking::read_ldr(sensor ldr)
     return reading;
 }
 
-int16_t* SolarTracking::read_ldr_all()
+int16_t* read_ldr_all()
 {
     int i;
     static int16_t ret[NUM_LDRS];
@@ -89,7 +68,7 @@ int16_t* SolarTracking::read_ldr_all()
     return ret;
 }
 
-int16_t SolarTracking::_get_dh()
+int16_t _get_dh()
 {
     /* Average Western labeled LDRs and Eastern labeled LDRs */
     int16_t west_avg = (read_ldr(NW) + read_ldr(SW)) / 2;
@@ -102,7 +81,7 @@ int16_t SolarTracking::_get_dh()
     return west_avg - east_avg;
 }
 
-int16_t SolarTracking::_get_dv()
+int16_t _get_dv()
 {
     /* Average Northern labeled LDRs and Southern labeled LDRs */
     int16_t north_avg = (read_ldr(NW) + read_ldr(NE)) / 2;
@@ -115,18 +94,23 @@ int16_t SolarTracking::_get_dv()
     return north_avg - south_avg;
 }
 
-bool SolarTracking::search()
+bool search()
 {
     int i;
     int16_t* readings;
     u_int16_t temp_angle = 0; // temp to know when a full rotation has occurred
+    /* Make sure pane is tilted at a 45 degree */
+    if (tilt_angle != TILT_INIT) {
+        tilt_pane(TILT_INIT);
+        delay(WRITE_DELAY);
+    }
 
     /* Perform NUM_LOOP loops to search for a significant light source */
     Serial.println("\n***\n*** Initiating search for power source\n***");
     for (i = 0; i < NUM_LOOP; i++) {
         /* Rotate the device fully once */
         while (temp_angle <= PAN_MAX) {
-            readings = SolarTracking::read_ldr_all();
+            readings = read_ldr_all();
             Serial.print("\n***\n*** On search ");
             Serial.print(i);
             if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
@@ -138,6 +122,7 @@ bool SolarTracking::search()
             }
             Serial.println("\n*** No significant power source detected\n***");
             pan_pane(pan_angle + 5);
+            delay(WRITE_DELAY);
             temp_angle += 5;
         }
         temp_angle = 0;
@@ -151,7 +136,7 @@ bool SolarTracking::search()
     return true;
 }
 
-void SolarTracking::track()
+void track()
 {
     /* Get changes in readings across horizontal and vertical LDR axes */
     int16_t dh = _get_dh();
@@ -208,20 +193,18 @@ void SolarTracking::track()
     }
 }
 
-void SolarTracking::pan_pane(u_int16_t angle)
+void pan_pane(u_int16_t angle)
 {
     /* Make sure pan_angle is within the range 0 to 360 */
     pan_angle = angle % (PAN_MAX + 1);
     pan.write(pan_angle);
-    delay(WRITE_DELAY);
 }
 
-void SolarTracking::tilt_pane(u_int8_t angle)
+void tilt_pane(u_int8_t angle)
 {
     /* Never tilt the pane past 180 degrees as hardware is in the way */
     if (angle <= TILT_MAX) {
         tilt_angle = angle;
         tilt.write(tilt_angle);
-        delay(WRITE_DELAY);
     }
 }
