@@ -46,14 +46,14 @@ public class BluetoothActivity extends AppCompatActivity {
                 status = "Bluetooth is not Enabled.";
             }
 
-            Toast.makeText(this, status, Toast.LENGTH_LONG).show();   // Continue with bluetooth setup.
+            //Toast.makeText(this, status, Toast.LENGTH_LONG).show();   // Continue with bluetooth setup.
 
             Set<BluetoothDevice> pairedDevices = bluetooth.getBondedDevices();
 
             ArrayList list = new ArrayList();
 
             for (BluetoothDevice bt : pairedDevices) list.add(bt.getName());
-
+            Log.d("Searching", "seach");
             for (BluetoothDevice bt : pairedDevices) {
                 if (bt.getName().equals("Solar Tracker")) {
                     Toast.makeText(getApplicationContext(), "FOUND", Toast.LENGTH_SHORT).show();

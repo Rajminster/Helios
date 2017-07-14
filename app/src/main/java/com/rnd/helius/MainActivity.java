@@ -113,26 +113,24 @@ public class MainActivity extends AppCompatActivity {
             startActivityForResult(turnOn, 0);
         }
         Set<BluetoothDevice> pairedDevices = bluetooth.getBondedDevices();
-        ArrayList list = new ArrayList();
         for (BluetoothDevice bt : pairedDevices) {
-            if (bt.getName().equals("Solar Tracker")) {
+           // if (bt.getName().equals("Solar Tracker")) {
                 tracker = bt;
-                Log.d("FOUND", "FOUND");
-            }
-            list.add(bt.getName());
+                Log.d("FOUND", bt.getName());
+           // }
         }
 
-        BluetoothManager bluetoothManager = (BluetoothManager) getApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
-        List<BluetoothDevice> devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
-        for(BluetoothDevice device : devices) {
-            if(device.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
-                Log.d("GOT", "EM");
-            }
-        }
-        BluetoothGattService gattService = new BluetoothGattService(UUID.fromString(uuid), BluetoothGattService.SERVICE_TYPE_PRIMARY);
-        BluetoothGattCharacteristic cha = gattService.getCharacteristic(UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"));
+//        BluetoothManager bluetoothManager = (BluetoothManager) getApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
+//        List<BluetoothDevice> devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
+//        for(BluetoothDevice device : devices) {
+//            if(device.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
+//                Log.d("GOT", "EM");
+//            }
+//        }
+//        BluetoothGattService gattService = new BluetoothGattService(UUID.fromString(uuid), BluetoothGattService.SERVICE_TYPE_PRIMARY);
+//        BluetoothGattCharacteristic cha = gattService.getCharacteristic(UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"));
         //List<BluetoothGattDescriptor> des =  cha.getDescriptors();
-       // Log.d("CHA CHA", cha.toString());
+        // Log.d("CHA CHA", cha.toString());
 
     }
 
