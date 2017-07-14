@@ -60,6 +60,9 @@
 #ifndef SolarTracking_h
 #define SolarTracking_h
 
+/* INCLUDE */
+#include <Servo.h>
+
 /* DEFINES */
 #define SEARCH_TOL 500 // higher tolerance for initially finding The Sun
 #define TRACK_DIFF  50 // reading difference tolerance when tracking The Sun
