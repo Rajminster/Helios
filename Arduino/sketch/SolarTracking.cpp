@@ -5,6 +5,26 @@
 
 #include "SolarTracking.h"
 
+/*
+ * Servo motor for panning the entire panel system, must be able to pan
+ * in 360 degrees
+ */
+Servo pan;
+
+/* Current angle for the pan Servo motor */
+u_int16_t pan_angle;
+
+/*
+ * Servo motor for tilting the entire pane where the panels and LDRs are
+ * located. This motor will only move from an angle of 0 degrees (where the pane
+ * would be perpendicular to the ground) to 180 degrees (where the pane would be
+ * perpendicular to the ground, facing the opposite direction)
+ */
+Servo tilt;
+
+/* Current angle for the pane Servo motor */
+u_int8_t tilt_angle;
+
 void initialize()
 {
     /* Setup baud rate as 9600 */
