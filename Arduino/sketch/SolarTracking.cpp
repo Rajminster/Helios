@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <Power.h>
-#include <Servo.h>
 #include <stdlib.h>
 #include <wsrc.h>
 
