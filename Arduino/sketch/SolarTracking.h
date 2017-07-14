@@ -139,7 +139,7 @@ u_int8_t tilt_angle;
  * Wait for WRITE_DELAY milliseconds for both motors to go to their
  * written values.
  */
-void setup();
+void initialize();
 
 /*
  * Puts the Arduino 101 into a low power sleep mode.
