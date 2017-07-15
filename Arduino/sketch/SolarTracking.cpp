@@ -1,9 +1,30 @@
 #include <Arduino.h>
 #include <Power.h>
+#include <Servo.h>
 #include <stdlib.h>
 #include <wsrc.h>
 
 #include "SolarTracking.h"
+
+/*
+ * Servo motor for panning the entire panel system, must be able to pan
+ * in 360 degrees
+ */
+Servo pan;
+
+/* Current angle for the pan Servo motor */
+u_int16_t pan_angle;
+
+/*
+ * Servo motor for tilting the entire pane where the panels and LDRs are
+ * located. This motor will only move from an angle of 0 degrees (where the pane
+ * would be perpendicular to the ground) to 180 degrees (where the pane would be
+ * perpendicular to the ground, facing the opposite direction)
+ */
+Servo tilt;
+
+/* Current angle for the pane Servo motor */
+u_int8_t tilt_angle;
 
 void initialize()
 {
@@ -58,15 +79,13 @@ int16_t read_ldr(sensor ldr)
     return reading;
 }
 
-int16_t* read_ldr_all()
+void read_ldr_all(int16_t* ldrs)
 {
     int i;
-    static int16_t ret[NUM_LDR];
 
     for (i = 0; i < NUM_LDR; i++) {
-        ret[i] = read_ldr((sensor) i);
+        ldrs[i] = read_ldr((sensor) i);
     }
-    return ret;
 }
 
 int16_t _get_dh()
@@ -98,7 +117,7 @@ int16_t _get_dv()
 bool search()
 {
     int i;
-    int16_t* readings;
+    int16_t readings[NUM_LDR];
     u_int16_t temp_angle = 0; // temp to know when a full rotation has occurred
     /* Make sure pane is tilted at a 45 degree */
     if (tilt_angle != TILT_INIT) {
@@ -111,7 +130,7 @@ bool search()
     for (i = 0; i < NUM_LOOP; i++) {
         /* Rotate the device fully once */
         while (temp_angle <= PAN_MAX) {
-            readings = read_ldr_all();
+            read_ldr_all(readings);
             Serial.print("\n***\n*** On search ");
             Serial.print(i);
             if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
