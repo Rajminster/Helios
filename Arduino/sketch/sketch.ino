@@ -31,7 +31,7 @@ void setup()
 
 void loop()
 {
-    std::vector<int16_t> ldr_readings = read_ldr_all();
+    int16_t* ldr_readings = read_ldr_all();
 
     /* If at least one LDR has a significant reading, stop sleeping */
     if (ldr_readings[0] >= LOW_READ || ldr_readings[1] >= LOW_READ
