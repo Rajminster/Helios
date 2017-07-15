@@ -6,13 +6,19 @@
  * the motion of The Sun in order to generate the most amount of power through
  * the solar panels used.
  *
- * Library may also apply to Arduino Uno; however, the Arduino sketch
- * tracker.ino only applies to the Arduino 101 as it uses the 101's built in
- * Bluetooth connectivity.
+ * Depending on the size of the solar panels used, the amount of power generated
+ * will vary. Using a DC current sensor, this amount of power can be measured
+ * and displayed.
+ *
+ * This library may also apply to Arduino Uno; however, the Arduino sketch
+ * helius_sketch.ino only applies to the Arduino 101 as it uses the 101's built
+ * in Bluetooth connectivity.
  *
  * This library is used whenever communication between the Arduino 101 and LDRs
  * is required. This library allows for control of Servo motor angle with or
- * without appropriate signals from one of four LDRs.
+ * without appropriate signals from one of four LDRs as well as methods to read
+ * values from any of the LDRs required: NorthWest, NorthEast, SouthWest, and
+ * SouthEast.
  *
  * For more information on the Arduino 101 board, refer to:
  * https://software.intel.com/en-us/iot/hardware/curie/dev-kit
@@ -38,18 +44,24 @@
  * Motion of the pane is controlled in two dimensions through two different
  * Servo motors. The entire pane containing the LDRs and solar panels is rotated
  * (or panned) through a 360 degree Servo motor which is used in
- * SolarTracker.cpp as pan. The pane itself where the LDRs are is tilted by
+ * SolarTracking.cpp as pan. The pane itself where the LDRs are is tilted by
  * another Servo motor known as tilt. This motor can only go from 0 degrees to
  * 180 degrees. Since pan has a range of values greater than 255, its angle is
- * represented by a unsigned short; tilt's angle is represented by an unsigned
+ * represented by an unsigned short; tilt's angle is represented by an unsigned
  * char.
  *
  * Whenever all four of the device's LDRs measure a consistently low reading or
  * if The Sun wasn't found on its initial search, the device will enter a deep
- * sleep mode each time the Arduino loop method executes. This deep sleep will
- * last for SLEEP_DURATION (see below) milliseconds. In order to break this deep
- * sleep cycle either at least one LDR must measure a significant reading or a
- * user needs to initiate a search using the external application.
+ * sleep mode each time the Arduino loop method executes. Since the device is
+ * considered on at this point, it will enter a deep sleep which will last for
+ * SLEEP_ON (see below) milliseconds. In order to break this deep sleep cycle
+ * either at least one LDR must measure a significant reading or a user needs to
+ * initiate a search using the external application. The user can also use the
+ * Bluetooth Android application to force the device to enter a deep sleep mode
+ * which is considered turning off the device. When the device is off, it will
+ * always enter a deep sleep mode for SLEEP_OFF milliseconds without looking at
+ * the LDR readings; only the user can turn the device back on by using the
+ * Android application at that point.
  *
  * CREATED:
  * 2017-06-24
@@ -60,20 +72,22 @@
 #ifndef SolarTracking_h
 #define SolarTracking_h
 
-/* INCLUDE */
+/* INCLUDES */
 #include <Servo.h>
+#include <vector>
 
 /* DEFINES */
 #define SEARCH_TOL 500 // higher tolerance for initially finding The Sun
+#define LOW_READ   350 // LDR reading which is considered low
 #define TRACK_DIFF  50 // reading difference tolerance when tracking The Sun
-#define LOW_READ    40 // LDR reading which is considered low
 #define LOW_TIMES   10 // assume night when all LDRs read low this many times
-#define NUM_LDRS     4 // number of LDR sensors
+#define NUM_LDR      4 // number of LDR sensors
 #define NUM_LOOP     2 // number of loops to make when searching for The Sun
 
-#define READ_DELAY  1000 // millisecond delay between LDR readings
-#define WRITE_DELAY 2000 // millisecond delay for Servo motor movement
-#define SLEEP_DELAY 3000 // millisecond duration for sleep
+#define READ_DELAY   1000 // millisecond delay between LDR readings
+#define WRITE_DELAY  2000 // millisecond delay for Servo motor movement
+#define SLEEP_ON     3000 // millisecond duration for sleep when device is on
+#define SLEEP_OFF   10000 // millisecond duration for sleep when device is off
 
 /* ENUM */
 /*
@@ -90,12 +104,34 @@ enum sensor { NW, NE, SW, SE };
 typedef unsigned char u_int8_t; // 8-bit unsigned integer [0 - 255]
 typedef signed short int16_t; // 16-bit signed integer [-32768 - 32767]
 typedef unsigned short u_int16_t; // 16-bit unsigned integer [0 - 65535]
+typedef unsigned int u_int32_t; // 32-bit unsigned integer [0 - 4294967295]
 
 /* CONSTANTS */
 const u_int16_t PAN_INIT = 0; // pan Servo motor initial angle
 const u_int16_t PAN_MAX = 360; // pan Servo motor upper bound
 const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
 const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
+
+/* GLOBAL VARIABLES */
+/*
+ * Servo motor for panning the entire panel system, must be able to pan
+ * in 360 degrees
+ */
+Servo pan;
+
+/* Current angle for the pan Servo motor */
+u_int16_t pan_angle;
+
+/*
+ * Servo motor for tilting the entire pane where the panels and LDRs are
+ * located. This motor will only move from an angle of 0 degrees (where the pane
+ * would be perpendicular to the ground) to 180 degrees (where the pane would be
+ * perpendicular to the ground, facing the opposite direction)
+ */
+Servo tilt;
+
+/* Current angle for the pane Servo motor */
+u_int8_t tilt_angle;
 
 /* PROTOTYPES */
 /*
@@ -120,20 +156,25 @@ const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
 void initialize();
 
 /*
- * Puts the Arduino 101 into a low power sleep mode.
+ * Puts the Arduino 101 into a low power sleep mode for the duration parameter
+ * milliseconds.
  *
  * The Arduino 101 enters a sleep mode where significantly less power is used.
- * The device only goes to sleep for a finite amount of time which is defined
- * in SolarTracking.h. This duration, SLEEP_DURATION, is the amount of
- * milliseconds the device will sleep for.
+ * The device will only go to sleep for a finite amount of time which is defined
+ * by the parameter supplied.
  *
- * During normal execution, if the Arduino 101 needs to go to sleep, for every
- * call to loop, the device will check if it needs to exit this deep sleep. If
- * so, it will continue tracking The Sun; otherwise the device will enter this
- * deep sleep mode for SLEEP_DURATION and will continue to do so as long as the
- * device needs to be in sleep mode.
+ * During normal execution, if the Arduino 101 is on and needs to go to sleep,
+ * for every call to loop, the device will check if it needs to exit this deep
+ * sleep. If so, it will continue tracking The Sun; otherwise the device will
+ * enter this deep sleep mode for duration milliseconds and will continue to do
+ * so as long as the device needs to be in sleep mode.
+ *
+ * If the device is considered off, then for every call to loop, the device will
+ * immediately go to deep sleep and check if the user wants the device to turn
+ * on. This means the device won't consider readings from the LDR but just what
+ * the user wants.
  */
-void sleep();
+void sleep(u_int32_t duration);
 
 /*
  * Makes the pane containing the LDRs and solar panels face what this library
@@ -161,19 +202,17 @@ void turn_east();
 int16_t read_ldr(sensor ldr);
 
 /*
- * Reads all LDR sensors, outputs, and returns int16_t pointer with these
- * values.
+ * Reads all LDR sensors, outputs, and returns int16_t vector with these values.
  *
- * The signed short pointer will be in the following format:
+ * The vector will be in the following format:
  *     Index 0: NW LDR reading
  *     Index 1: NE LDR reading
  *     Index 2: SW LDR reading
  *     Index 3: SE LDR reading
- *
  * where NW, NE, SW, and SE are the labeled cardinal directions on the pane near
  * each LDR.
  */
-int16_t* read_ldr_all();
+std::vector<int16_t> read_ldr_all();
 
 /*
  * Read values from the NW and SW labeled LDRs, read values from the NE and SE
