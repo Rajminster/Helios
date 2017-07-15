@@ -79,13 +79,15 @@ int16_t read_ldr(sensor ldr)
     return reading;
 }
 
-void read_ldr_all(int16_t* ldrs)
+int16_t* read_ldr_all()
 {
     int i;
+    static int16_t ret[NUM_LDR];
 
     for (i = 0; i < NUM_LDR; i++) {
-        ldrs[i] = read_ldr((sensor) i);
+        ret[i] = read_ldr((sensor) i);
     }
+    return ret;
 }
 
 int16_t _get_dh()
