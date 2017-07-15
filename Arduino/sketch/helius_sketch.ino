@@ -65,7 +65,7 @@ bool sleeping;
  * will ignore the LDR readings and stay sleeping until the user gives the
  * signal to wake up.
  */
-bool off = false;
+bool off;
 
 /*
  * Method which will take the above defined variables and update their values
@@ -128,8 +128,7 @@ void run(bool bluetooth)
         }
         */
     } else {
-        int16_t ldr_all[NUM_LDR];
-        read_ldr_all(ldr_all);
+        int16_t ldr_all[NUM_LDR] = read_ldr_all();
     
         /* If at least one LDR has a significant reading, stop sleeping */
         if (ldr_all[0] >= LOW_READ || ldr_all[1] >= LOW_READ
@@ -210,6 +209,7 @@ void setup()
 
     /* Search for The Sun, sleep if sun wasn't found; track otherwise */
     sleeping = search();
+    off = false;
 
     blep.begin();
     Serial.println("\n***\n*** Bluetooth system activated, awaiting peripheral "
