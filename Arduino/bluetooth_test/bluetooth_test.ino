@@ -45,8 +45,8 @@ void setup()
     nw_ldr_char.setValue(nw_char_array, 2);
 
     blep.begin();
-    Serial.println(
-        "\n***\n*** Bluetooth system activated, awaiting peripheral connection\n***");
+    Serial.println("\n***\n*** Bluetooth system activated, awaiting peripheral "
+        "connection\n***");
 }
 
 void loop()
