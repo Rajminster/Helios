@@ -128,7 +128,7 @@ void run(bool bluetooth)
         }
         */
     } else {
-        int16_t ldr_all[NUM_LDR] = read_ldr_all();
+        int16_t* ldr_all = read_ldr_all();
     
         /* If at least one LDR has a significant reading, stop sleeping */
         if (ldr_all[0] >= LOW_READ || ldr_all[1] >= LOW_READ
