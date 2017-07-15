@@ -72,9 +72,8 @@
 #ifndef SolarTracking_h
 #define SolarTracking_h
 
-/* INCLUDES */
+/* INCLUDE */
 #include <Servo.h>
-#include <vector>
 
 /* DEFINES */
 #define SEARCH_TOL 500 // higher tolerance for initially finding The Sun
@@ -202,9 +201,9 @@ void turn_east();
 int16_t read_ldr(sensor ldr);
 
 /*
- * Reads all LDR sensors, outputs, and returns int16_t vector with these values.
+ * Reads all LDR sensors, outputs, and returns int16_t array with these values.
  *
- * The vector will be in the following format:
+ * The array will be in the following format:
  *     Index 0: NW LDR reading
  *     Index 1: NE LDR reading
  *     Index 2: SW LDR reading
@@ -212,7 +211,7 @@ int16_t read_ldr(sensor ldr);
  * where NW, NE, SW, and SE are the labeled cardinal directions on the pane near
  * each LDR.
  */
-vector<int16_t> read_ldr_all();
+void read_ldr_all(int16_t* ldrs);
 
 /*
  * Read values from the NW and SW labeled LDRs, read values from the NE and SE
