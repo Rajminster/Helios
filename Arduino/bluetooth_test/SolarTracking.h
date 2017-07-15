@@ -212,7 +212,7 @@ int16_t read_ldr(sensor ldr);
  * where NW, NE, SW, and SE are the labeled cardinal directions on the pane near
  * each LDR.
  */
-std::vector<int16_t> read_ldr_all();
+vector<int16_t> read_ldr_all();
 
 /*
  * Read values from the NW and SW labeled LDRs, read values from the NE and SE
