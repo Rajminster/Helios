@@ -58,10 +58,10 @@ int16_t read_ldr(sensor ldr)
     return reading;
 }
 
-std::vector<int16_t> read_ldr_all()
+vector<int16_t> read_ldr_all()
 {
     int i;
-    std::vector<int16_t> ret(NUM_LDR);
+    vector<int16_t> ret(NUM_LDR);
 
     for (i = 0; i < NUM_LDR; i++) {
         ret[i] = read_ldr((sensor) i);
@@ -98,7 +98,7 @@ int16_t _get_dv()
 bool search()
 {
     int i;
-    std::vector<int16_t> readings;
+    vector<int16_t> readings;
     u_int16_t temp_angle = 0; // temp to know when a full rotation has occurred
     /* Make sure pane is tilted at a 45 degree */
     if (tilt_angle != TILT_INIT) {
