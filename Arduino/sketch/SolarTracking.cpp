@@ -3,6 +3,7 @@
 #include <Servo.h>
 #include <stdlib.h>
 #include <wsrc.h>
+#include <time.h>
 
 #include "SolarTracking.h"
 
@@ -62,7 +63,8 @@ void turn_east()
 {
     /* Turn pane around to face direction of sunrise */
     Serial.println("\n***\n*** No power detected, moving panels East\n***");
-    pan_pane(pan_angle + 180);
+    // pan_angle is a velocity. 110 will move it clockwise(?). 90 means no movement.
+    pan_pane(pan_angle + 110);
     tilt_pane(TILT_INIT);
     delay(WRITE_DELAY); // wait for motors to reach their destinations
 }
@@ -130,32 +132,38 @@ bool search()
     /* Perform NUM_LOOP loops to search for a significant light source */
     Serial.println("\n***\n*** Initiating search for power source\n***");
     for (i = 0; i < NUM_LOOP; i++) {
-        /* Rotate the device fully once */
-        while (temp_angle <= PAN_MAX) {
-            readings = read_ldr_all();
-            Serial.print("\n***\n*** On search ");
-            Serial.print(i);
-            if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
-                || readings[2] > SEARCH_TOL || readings[3] > SEARCH_TOL) {
-                /* Significant light intensity found; don't sleep */
-                Serial.println("\n*** Power source detected. Initiating light "
-                    "tracking protocol\n***");
-                return false;
-            }
-            Serial.println("\n*** No significant power source detected\n***");
-            pan_pane(pan_angle + 5);
-            delay(WRITE_DELAY);
-            temp_angle += 5;
-        }
-        temp_angle = 0;
+    //     /* Rotate the device fully once */
+    //     while (temp_angle <= PAN_MAX) {
+        for ()
+    //         readings = read_ldr_all();
+    //         Serial.print("\n***\n*** On search ");
+    //         Serial.print(i);
+    //         if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
+    //             || readings[2] > SEARCH_TOL || readings[3] > SEARCH_TOL) {
+    //             /* Significant light intensity found; don't sleep */
+    //             Serial.println("\n*** Power source detected. Initiating light "
+    //                 "tracking protocol\n***");
+    //             pan_angle = 0;
+    //             return false;
+    //         }
+    //         Serial.println("\n*** No significant power source detected\n***");
+    //         pan_pane(pan_angle + 5);
+    //         delay(WRITE_DELAY);
+    //         temp_angle += 5;
+    //     }
+    //     temp_angle = 0;
     }
-    /*
-     * Sun not found; begin sleeping until Sun appears in front of the LDR pane
-     * or a user wakes up the device using the application
-     */
-    Serial.println("\n***\n*** Error: no power detected. Initiating low power "
-        "protocol\n***");
-    return true;
+    // /*
+    //  * Sun not found; begin sleeping until Sun appears in front of the LDR pane
+    //  * or a user wakes up the device using the application
+    //  */
+    // Serial.println("\n***\n*** Error: no power detected. Initiating low power "
+    //     "protocol\n***");
+    // pan_angle = 0;
+    // return true;
+
+
+
 }
 
 void track()
@@ -215,12 +223,12 @@ void track()
     }
 }
 
-void pan_pane(u_int16_t angle)
-{
-    /* Make sure pan_angle is within the range 0 to 360 */
-    pan_angle = angle % (PAN_MAX + 1);
-    pan.write(pan_angle);
-}
+// void pan_pane(u_int16_t angle)
+// {
+//     /* Make sure pan_angle is within the range 0 to 360 */
+//     pan_angle = angle % (PAN_MAX + 1);
+//     pan.write(pan_angle);
+// }
 
 void tilt_pane(u_int8_t angle)
 {
