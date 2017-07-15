@@ -61,7 +61,6 @@
 #define SolarTracking_h
 
 /* INCLUDE */
-
 #include <Servo.h>
 
 /* DEFINES */
