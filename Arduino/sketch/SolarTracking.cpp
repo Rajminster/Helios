@@ -58,15 +58,13 @@ int16_t read_ldr(sensor ldr)
     return reading;
 }
 
-vector<int16_t> read_ldr_all()
+void read_ldr_all(int16_t* ldrs)
 {
     int i;
-    vector<int16_t> ret(NUM_LDR);
 
     for (i = 0; i < NUM_LDR; i++) {
-        ret[i] = read_ldr((sensor) i);
+        ldrs[i] = read_ldr((sensor) i);
     }
-    return ret;
 }
 
 int16_t _get_dh()
@@ -98,7 +96,7 @@ int16_t _get_dv()
 bool search()
 {
     int i;
-    vector<int16_t> readings;
+    int16_t readings[NUM_LDR];
     u_int16_t temp_angle = 0; // temp to know when a full rotation has occurred
     /* Make sure pane is tilted at a 45 degree */
     if (tilt_angle != TILT_INIT) {
@@ -111,7 +109,7 @@ bool search()
     for (i = 0; i < NUM_LOOP; i++) {
         /* Rotate the device fully once */
         while (temp_angle <= PAN_MAX) {
-            readings = read_ldr_all();
+            read_ldr_all(readings);
             Serial.print("\n***\n*** On search ");
             Serial.print(i);
             if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
