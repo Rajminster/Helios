@@ -8,8 +8,6 @@
 void initialize()
 {
     /* Setup baud rate as 9600 */
-    Serial.end();
-    delay(100);
     Serial.begin(9600);
     Serial.println("\n***\n*** Initializing pin connections\n***");
 
@@ -57,7 +55,11 @@ int16_t read_ldr(sensor ldr)
     Serial.println("\n***");
     return reading;
 }
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 7587e9e9ea4d94cdbc49f60aad173d1d84241dc7
 int16_t* read_ldr_all()
 {
     int i;
