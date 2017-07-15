@@ -65,14 +65,14 @@ bool sleeping;
  * will ignore the LDR readings and stay sleeping until the user gives the
  * signal to wake up.
  */
-bool off = false;
+bool off;
 
 /*
  * Method which will take the above defined variables and update their values
  * every DELAY milliseconds. If there is a change in value, any peripheral
  * device connected to this Service via Bluetooth will be notified.
  */
-void update_ldr_readings(int16_t readings[])
+void update_ldr_readings(int16_t* readings)
 {
     int i;
 
@@ -128,8 +128,7 @@ void run(bool bluetooth)
         }
         */
     } else {
-        int16_t ldr_all[NUM_LDR];
-        read_ldr_all(ldr_all);
+        int16_t* ldr_all = read_ldr_all();
     
         /* If at least one LDR has a significant reading, stop sleeping */
         if (ldr_all[0] >= LOW_READ || ldr_all[1] >= LOW_READ
