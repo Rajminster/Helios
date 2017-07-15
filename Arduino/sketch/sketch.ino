@@ -22,9 +22,6 @@ bool sleeping;
 
 void setup()
 {
-    Serial.end();
-    delay(100);
-
     /* Setup baud rate, pins, interrupt handling, and initialize Servo angles */
     initialize();
 
@@ -34,7 +31,7 @@ void setup()
 
 void loop()
 {
-    int16_t* ldr_readings = read_ldr_all();
+    std::vector<int16_t> ldr_readings = read_ldr_all();
 
     /* If at least one LDR has a significant reading, stop sleeping */
     if (ldr_readings[0] >= LOW_READ || ldr_readings[1] >= LOW_READ
@@ -56,7 +53,7 @@ void loop()
 
     /* If The Sun wasn't found or it's night time, only sleep */
     if (sleeping) {
-        sleep(); // Arduino 101 is now sleeping briefly
+        sleep(SLEEP_ON); // Arduino 101 is now sleeping briefly
     } else {
         /* If all sensors have low readings, increment times_low */
         if (ldr_readings[0] < LOW_READ && ldr_readings[1] < LOW_READ
