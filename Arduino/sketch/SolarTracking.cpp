@@ -5,29 +5,11 @@
 
 #include "SolarTracking.h"
 
-/*
- * Servo motor for panning the entire panel system, must be able to pan
- * in 360 degrees
- */
-Servo pan;
-
-/* Current angle for the pan Servo motor */
-u_int16_t pan_angle;
-
-/*
- * Servo motor for tilting the entire pane where the panels and LDRs are
- * located. This motor will only move from an angle of 0 degrees (where the pane
- * would be perpendicular to the ground) to 180 degrees (where the pane would be
- * perpendicular to the ground, facing the opposite direction)
- */
-Servo tilt;
-
-/* Current angle for the pane Servo motor */
-u_int8_t tilt_angle;
-
 void initialize()
 {
     /* Setup baud rate as 9600 */
+    Serial.end();
+    delay(100);
     Serial.begin(9600);
     Serial.println("\n***\n*** Initializing pin connections\n***");
 
@@ -44,12 +26,12 @@ void initialize()
     delay(WRITE_DELAY);
 }
 
-void sleep()
+void sleep(u_int32_t duration)
 {
     Serial.println("\n***\n*** Shutting down power systems\n***");
 
-    /* Go into a deepSleep for SLEEP_DURATION milliseconds */
-    PM.deepSleep(SLEEP_DELAY);
+    /* Go into a deepSleep for duration milliseconds */
+    PM.deepSleep(duration);
 
     /* Arduino 101 is awake whenever it reaches here */
     Serial.println("\n***\n*** Main power online\n***");
@@ -76,12 +58,12 @@ int16_t read_ldr(sensor ldr)
     return reading;
 }
 
-int16_t* read_ldr_all()
+std::vector<int16_t> read_ldr_all()
 {
     int i;
-    static int16_t ret[NUM_LDRS];
+    std::vector<int16_t> ret(NUM_LDR);
 
-    for (i = 0; i < NUM_LDRS; i++) {
+    for (i = 0; i < NUM_LDR; i++) {
         ret[i] = read_ldr((sensor) i);
     }
     return ret;
@@ -116,7 +98,7 @@ int16_t _get_dv()
 bool search()
 {
     int i;
-    int16_t* readings;
+    std::vector<int16_t> readings;
     u_int16_t temp_angle = 0; // temp to know when a full rotation has occurred
     /* Make sure pane is tilted at a 45 degree */
     if (tilt_angle != TILT_INIT) {
