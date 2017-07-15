@@ -119,7 +119,7 @@ int16_t _get_dv()
 bool search()
 {
     int i;
-    int16_t readings[NUM_LDR];
+    int16_t* readings;
     u_int16_t temp_angle = 0; // temp to know when a full rotation has occurred
     /* Make sure pane is tilted at a 45 degree */
     if (tilt_angle != TILT_INIT) {
@@ -132,7 +132,7 @@ bool search()
     for (i = 0; i < NUM_LOOP; i++) {
         /* Rotate the device fully once */
         while (temp_angle <= PAN_MAX) {
-            read_ldr_all(readings);
+            readings = read_ldr_all();
             Serial.print("\n***\n*** On search ");
             Serial.print(i);
             if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
