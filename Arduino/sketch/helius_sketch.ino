@@ -1,5 +1,3 @@
-BLEDescriptor nw_descriptor = BLEDescriptor("2901", "NW Labeled LDR");
-BLEDescriptor nw_descriptor = BLEDescriptor("2901", "NW Labeled LDR");
 #include <CurieBLE.h>
 
 #include "SolarTracking.h"
