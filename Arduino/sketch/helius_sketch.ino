@@ -32,7 +32,7 @@ int16_t ne = 0; // last NE LDR reading
 int16_t sw = 0; // last SW LDR reading
 int16_t se = 0; // last SE LDR reading
 
-int16_t old_readings[NUM_LDRS] = { nw, ne, sw, se };
+int16_t old_readings[NUM_LDR] = { nw, ne, sw, se };
 
 /*
  * Variable for keeping track of how many times in a row all LDRs measure a
@@ -72,12 +72,12 @@ bool off = false;
  * every DELAY milliseconds. If there is a change in value, any peripheral
  * device connected to this Service via Bluetooth will be notified.
  */
-void update_ldr_readings(int16_t* readings)
+void update_ldr_readings(std::vector<int16_t> readings)
 {
     int i;
 
     /* Check for changes in LDR readings */
-    for (i = 0; i < NUM_LDRS; i++) {
+    for (i = 0; i < NUM_LDR; i++) {
         /* Change in LDR measurement */
         u_int16_t curr_reading = map(readings[i], 0, 1023, 0, 100);
         if (curr_reading != old_readings[i]) {
