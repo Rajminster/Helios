@@ -133,7 +133,7 @@ bool search()
 
     /* Perform NUM_LOOP loops to search for a significant light source */
     Serial.println("\n***\n*** Initiating search for power source\n***");
-    /* Rotate the device fully once */
+    /* Rotate the device fully NUM_LOOP times */
     while (temp_angle <= 360 * NUM_LOOP) {
         readings = read_ldr_all();
         if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
