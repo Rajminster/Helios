@@ -80,6 +80,13 @@
 #define NUM_LDR      4 // number of LDR sensors
 #define NUM_LOOP     2 // number of loops to make when searching for The Sun
 
+#define STOP_PAN    90 // stop pan motor movement
+#define SEARCH      20 // search pan motor speed
+#define TRACK_CW    70 // clockwise track pan motor speed
+#define TRACK_CCW  160 // counterclockwise track pan motor speed
+#define MAX_PAN    180 // max pan speed
+#define DA           7 // change in angle per second with SEARCH pan motor speed
+
 #define READ_DELAY   1000 // millisecond delay between LDR readings
 #define WRITE_DELAY  2000 // millisecond delay for Servo motor movement
 #define SLEEP_ON     3000 // millisecond duration for sleep when device is on
@@ -103,8 +110,6 @@ typedef unsigned short u_int16_t; // 16-bit unsigned integer [0 - 65535]
 typedef unsigned int u_int32_t; // 32-bit unsigned integer [0 - 4294967295]
 
 /* CONSTANTS */
-const u_int16_t PAN_INIT = 0; // pan Servo motor initial angle
-const u_int16_t PAN_MAX = 360; // pan Servo motor upper bound
 const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
 const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
 
@@ -271,21 +276,18 @@ bool search();
 void track();
 
 /*
- * Rotates the pane containing the LDR cluster and solar panels either clockwise
- * or counterclockwise, depending on how the parameter supplied compares to the
- * variable pan_angle.
+ * Pan the entire device at a given speed either clockwise or counterclockwise.
  *
- * In the search method, the pan_angle is changed by 5 degrees clockwise in
- * order to rotate the entire device quickly to check if this angle a
- * significant light source can be found.
+ * This method will set the speed of the continuous Servo motor pan which will
+ * allow the motor to continually move in either a clockwise or counterclockwise
+ * (depending on the value given) motion.
  *
- * In the track method by contrast, the pan_angle variable +/- 1 is supplied as
- * the parameter for this method. This will rotate the device by one degree in
- * order to only minutely change its orientation. This one degree is all that is
- * necessary as The Sun's position in the sky does not move rather quickly with
- * respect to the area the LDRs face.
+ * If the value for the speed parameter is 0, the motor will spin clockwise at
+ * the fastest speed allowed by the motor. If the value is 90, the motor will
+ * not move. The closer the value is to 90, the slower the motor will move. If
+ * the value is greater than 90, the motor will spin counterclockwise.
  */
-void pan_pane(u_int16_t angle);
+void pan_speed(u_int8_t speed);
 
 /*
  * Updates the angle of tilt for the pane containing the LDRs and solar panels
