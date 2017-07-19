@@ -134,7 +134,7 @@ bool search()
     for (i = 0; i < NUM_LOOP; i++) {
     //     /* Rotate the device fully once */
     //     while (temp_angle <= PAN_MAX) {
-        for ()
+    //    for ()
     //         readings = read_ldr_all();
     //         Serial.print("\n***\n*** On search ");
     //         Serial.print(i);

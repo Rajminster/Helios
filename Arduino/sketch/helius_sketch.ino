@@ -16,9 +16,13 @@ BLECharacteristic se_ldr_char("6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
     | BLENotify, 2);
 // BLECharacteristic energy_char("6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
 //    | BLENotify, 2);
+BLECharacteristic power_on("6E400007-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
+    | BLENotify, 2);
+    BLECharacteristic power_off("6E400008-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
+    | BLENotify, 2);
 
-BLECharacteristic characteristics[4] = { nw_ldr_char, ne_ldr_char, sw_ldr_char,
-    se_ldr_char };
+BLECharacteristic characteristics[6] = { nw_ldr_char, ne_ldr_char, sw_ldr_char,
+    se_ldr_char, power_on, power_off};
 
 BLEDescriptor nw_descriptor = BLEDescriptor("2901", "NW Labeled LDR");
 BLEDescriptor ne_descriptor = BLEDescriptor("2901", "NE Labeled LDR");
@@ -189,6 +193,8 @@ void setup()
     blep.addAttribute(ne_ldr_char);
     blep.addAttribute(sw_ldr_char);
     blep.addAttribute(se_ldr_char);
+    blep.addAttribute(power_on);
+    blep.addAttribute(power_off);
     // blep.addAttribute(energy_Char);
 
     /* Initialize Bluetooth Characteristic values */
