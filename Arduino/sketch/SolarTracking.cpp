@@ -3,7 +3,6 @@
 #include <Servo.h>
 #include <stdlib.h>
 #include <wsrc.h>
-#include <time.h>
 
 #include "SolarTracking.h"
 
@@ -12,9 +11,6 @@
  * in 360 degrees
  */
 Servo pan;
-
-/* Current angle for the pan Servo motor */
-u_int16_t pan_angle;
 
 /*
  * Servo motor for tilting the entire pane where the panels and LDRs are
@@ -41,7 +37,7 @@ void initialize()
 
     /* Move motors to their starting positions */
     Serial.println("\n***\n*** Motors approaching initial positions\n***");
-    pan_pane(PAN_INIT);
+    pan_speed(STOP_PAN);
     tilt_pane(TILT_INIT); // 45 degrees to prevent pane from shading all LDRs
 
     /* Wait for motors to finish moving */
@@ -61,12 +57,18 @@ void sleep(u_int32_t duration)
 
 void turn_east()
 {
+    u_int8_t temp_angle = 0; // temp to know when a turn has been made
+
     /* Turn pane around to face direction of sunrise */
     Serial.println("\n***\n*** No power detected, moving panels East\n***");
-    // pan_angle is a velocity. 110 will move it clockwise(?). 90 means no movement.
-    pan_pane(pan_angle + 110);
     tilt_pane(TILT_INIT);
-    delay(WRITE_DELAY); // wait for motors to reach their destinations
+
+    /* Pan 180 degrees */
+    pan_speed(SEARCH);
+    while (temp_angle < 180) {
+        temp_angle += DA;
+        delay(READ_DELAY);
+    }
 }
 
 int16_t read_ldr(sensor ldr)
@@ -120,9 +122,9 @@ int16_t _get_dv()
 
 bool search()
 {
-    int i;
     int16_t* readings;
     u_int16_t temp_angle = 0; // temp to know when a full rotation has occurred
+    pan_speed(SEARCH);
     /* Make sure pane is tilted at a 45 degree */
     if (tilt_angle != TILT_INIT) {
         tilt_pane(TILT_INIT);
@@ -131,39 +133,28 @@ bool search()
 
     /* Perform NUM_LOOP loops to search for a significant light source */
     Serial.println("\n***\n*** Initiating search for power source\n***");
-    for (i = 0; i < NUM_LOOP; i++) {
-    //     /* Rotate the device fully once */
-    //     while (temp_angle <= PAN_MAX) {
-    //    for ()
-    //         readings = read_ldr_all();
-    //         Serial.print("\n***\n*** On search ");
-    //         Serial.print(i);
-    //         if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
-    //             || readings[2] > SEARCH_TOL || readings[3] > SEARCH_TOL) {
-    //             /* Significant light intensity found; don't sleep */
-    //             Serial.println("\n*** Power source detected. Initiating light "
-    //                 "tracking protocol\n***");
-    //             pan_angle = 0;
-    //             return false;
-    //         }
-    //         Serial.println("\n*** No significant power source detected\n***");
-    //         pan_pane(pan_angle + 5);
-    //         delay(WRITE_DELAY);
-    //         temp_angle += 5;
-    //     }
-    //     temp_angle = 0;
+    /* Rotate the device fully once */
+    while (temp_angle <= 360 * NUM_LOOP) {
+        readings = read_ldr_all();
+        if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
+            || readings[2] > SEARCH_TOL || readings[3] > SEARCH_TOL) {
+            /* Significant light intensity found; don't sleep */
+            Serial.println("\n*** Power source detected. Initiating light "
+                "tracking protocol\n***");
+            pan_speed(STOP_PAN);
+            return false;
+        }
+        temp += DA;
+        delay(READ_DELAY);
     }
-    // /*
-    //  * Sun not found; begin sleeping until Sun appears in front of the LDR pane
-    //  * or a user wakes up the device using the application
-    //  */
-    // Serial.println("\n***\n*** Error: no power detected. Initiating low power "
-    //     "protocol\n***");
-    // pan_angle = 0;
-    // return true;
-
-
-
+    /*
+     * Sun not found; begin sleeping until Sun appears in front of the LDR pane
+     * or a user wakes up the device using the application
+     */
+    Serial.println("\n***\n*** Error: no power detected. Initiating low power "
+        "protocol\n***");
+    pan_speed(STOP_PAN);
+    return true;
 }
 
 void track()
@@ -194,7 +185,7 @@ void track()
              * the tilt angle is greater than 90 degrees (West and East will be
              * switched) then move in the opposite direction, counterclockwise
              */
-            pan_pane(pan_angle + (tilt_angle <= 90 ? 1 : -1));
+            pan_speed(tilt_angle <= 90 ? TRACK_CW : TRACK_CCW);
         } else {
             /*
              * LDRs labeled as East receive more light. In this case, depending
@@ -203,7 +194,7 @@ void track()
              * equal to 90 degrees, then the device should rotate
              * counterclockwise; otherwise it should rotate clockwise
              */
-            pan_pane(pan_angle + (tilt_angle <= 90 ? -1 : 1));
+            pan_speed(tilt_angle <= 90 ? TRACK_CCW : TRACK_CW);
         }
     }
     /*
@@ -223,12 +214,13 @@ void track()
     }
 }
 
-// void pan_pane(u_int16_t angle)
-// {
-//     /* Make sure pan_angle is within the range 0 to 360 */
-//     pan_angle = angle % (PAN_MAX + 1);
-//     pan.write(pan_angle);
-// }
+void pan_speed(u_int8_t speed)
+{
+    /* Make sure pan_angle is within the range 0 to 180 */
+    if (speed <= MAX_PAN) {
+        pan.write(speed);
+    }
+}
 
 void tilt_pane(u_int8_t angle)
 {
