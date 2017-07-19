@@ -80,12 +80,12 @@
 #define NUM_LDR      4 // number of LDR sensors
 #define NUM_LOOP     2 // number of loops to make when searching for The Sun
 
-#define STOP_PAN    90 // stop pan motor movement
-#define SEARCH      20 // search pan motor speed
-#define TRACK_CW    70 // clockwise track pan motor speed
-#define TRACK_CCW  160 // counterclockwise track pan motor speed
-#define MAX_PAN    180 // max pan speed
-#define DA           7 // change in angle per second with SEARCH pan motor speed
+#define STOP_PAN   90 // stop pan motor movement
+#define SEARCH     20 // search pan motor speed
+#define TRACK_CW   70 // clockwise track pan motor speed
+#define TRACK_CCW 110 // counterclockwise track pan motor speed
+#define MAX_PAN   180 // max pan speed
+#define DA          7 // change in angle per second with SEARCH pan motor speed
 
 #define READ_DELAY   1000 // millisecond delay between LDR readings
 #define WRITE_DELAY  2000 // millisecond delay for Servo motor movement
