@@ -69,6 +69,7 @@ void turn_east()
         temp_angle += DA;
         delay(READ_DELAY);
     }
+    pan_speed(STOP_PAN);
 }
 
 int16_t read_ldr(sensor ldr)
