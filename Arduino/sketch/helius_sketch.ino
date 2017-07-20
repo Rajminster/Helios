@@ -13,7 +13,7 @@ BLEUnsignedCharCharacteristic ne_ldr_char(
 BLEUnsignedCharCharacteristic sw_ldr_char(
     "6E400004-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEUnsignedCharCharacteristic se_ldr_char(
-    "6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLUEWrite | BLENotify);
+    "6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEUnsignedShortCharacteristic energy_char(
     "6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEBoolCharacteristic power_char("6E400007-B5A3-F393-E0A9-E50E24DCCA9E",
@@ -21,7 +21,7 @@ BLEBoolCharacteristic power_char("6E400007-B5A3-F393-E0A9-E50E24DCCA9E",
 BLEBoolCharacteristic search_char("6E400008-B5A3-F393-E0A9-E50E24DCCA9E",
     BLERead | BLEWrite | BLENotify);
 
-BLECharacteristic characteristics = {
+BLECharacteristic* characteristics = {
     nw_ldr_char, ne_ldr_char, sw_ldr_char, se_ldr_char, energy_char };
 
 BLEDescriptor nw_descriptor = BLEDescriptor("2901", "NW LDR Percentage");
@@ -37,7 +37,7 @@ u_int8_t ne = 0; // last NE LDR percentage reading
 u_int8_t sw = 0; // last SW LDR percentage reading
 u_int8_t se = 0; // last SE LDR percentage reading
 u_int16_t energy = 0; // last energy reading
-u_int16_t old_readings = { nw, ne, sw, se, energy };
+u_int16_t* old_readings = { nw, ne, sw, se, energy };
 
 /*
  * Variable for keeping track of how many times in a row all LDRs measure a
