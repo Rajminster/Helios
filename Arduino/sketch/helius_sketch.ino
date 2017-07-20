@@ -37,7 +37,7 @@ u_int8_t ne = 0; // last NE LDR percentage reading
 u_int8_t sw = 0; // last SW LDR percentage reading
 u_int8_t se = 0; // last SE LDR percentage reading
 u_int16_t energy = 0; // last energy reading
-u_int16_t* old_readings = { nw, ne, sw, se };
+u_int16_t old_readings[NUM_LDR] = { nw, ne, sw, se };
 
 /*
  * Variable for keeping track of how many times in a row all LDRs measure a
