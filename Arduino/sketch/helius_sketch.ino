@@ -150,7 +150,7 @@ void run(bool bluetooth)
 
         /* Check if button for power or initiating a search were pressed */
         if (bluetooth) {
-            update_readings(ldr_all, read_dc());
+            update_readings(ldr_all, read_power());
             if (search_char.value()) {
                 search_char.setValue(0);
                 sleeping = search();
