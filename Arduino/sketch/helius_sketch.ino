@@ -153,7 +153,7 @@ void run(bool bluetooth)
             update_readings(ldr_all, read_current());
             if (search_char.value()) {
                 search_char.setValue(false);
-                sleep = search();
+                sleeping = search();
             }
             /* Change power status */
             if (power_char.value()) {
