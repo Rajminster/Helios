@@ -146,7 +146,7 @@ bool search()
             pan_speed(STOP_PAN);
             return false;
         }
-        temp += DA;
+        temp_angle += DA;
         delay(READ_DELAY);
     }
     /*
