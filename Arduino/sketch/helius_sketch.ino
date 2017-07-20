@@ -21,8 +21,8 @@ BLEBoolCharacteristic power_char("6E400007-B5A3-F393-E0A9-E50E24DCCA9E",
 BLEBoolCharacteristic search_char("6E400008-B5A3-F393-E0A9-E50E24DCCA9E",
     BLERead | BLEWrite | BLENotify);
 
-BLECharacteristic* characteristics = {
-    nw_ldr_char, ne_ldr_char, sw_ldr_char, se_ldr_char, energy_char };
+BLEUnsignedCharCharacteristic* characteristics = {
+    nw_ldr_char, ne_ldr_char, sw_ldr_char, se_ldr_char };
 
 BLEDescriptor nw_descriptor = BLEDescriptor("2901", "NW LDR Percentage");
 BLEDescriptor ne_descriptor = BLEDescriptor("2901", "NE LDR Percentage");
@@ -37,7 +37,7 @@ u_int8_t ne = 0; // last NE LDR percentage reading
 u_int8_t sw = 0; // last SW LDR percentage reading
 u_int8_t se = 0; // last SE LDR percentage reading
 u_int16_t energy = 0; // last energy reading
-u_int16_t* old_readings = { nw, ne, sw, se, energy };
+u_int16_t* old_readings = { nw, ne, sw, se };
 
 /*
  * Variable for keeping track of how many times in a row all LDRs measure a
@@ -77,16 +77,15 @@ bool off;
  * every DELAY milliseconds. If there is a change in value, any peripheral
  * device connected to this Service via Bluetooth will be notified.
  */
-void update_readings(int16_t* readings)
+void update_readings(int16_t* readings, u_int16_t energy_new)
 {
     int i;
     u_int16_t curr_reading;
 
     /* First update LDR values if necessary */
-    for (i = 0; i < NUM_LDR + 1; i++) {
+    for (i = 0; i < NUM_LDR; i++) {
         /* Convert raw reading to percentage */
-        curr_reading =
-            i == NUM_LDR ? readings[i] : map(readings[i], 0, 1023, 0, 100);
+        curr_reading = map(readings[i], 0, 1023, 0, 100);
         if (curr_reading != old_readings[i]) {
             Serial.print("\n***\n*** Updating LDR reading in ");
             Serial.print((sensor) i);
@@ -97,6 +96,21 @@ void update_readings(int16_t* readings)
             old_readings[i] = curr_reading;
         }
     }
+
+    /* Update energy reading if necessary */
+    if (energy != energy_new) {
+        Serial.print("\n***\n*** Updating energy reading to ");
+        Serial.print(energy_new);
+        Serial.println("\n***");
+        energy_char.setValue(energy_new);
+        energy = energy_new;
+    }
+}
+
+// TODO
+u_int16_t read_energy()
+{
+    return 0;
 }
 
 /*
@@ -142,9 +156,7 @@ void run(bool bluetooth)
 
         /* Check if button for power or initiating a search were pressed */
         if (bluetooth) {
-            // TODO
-            // int16_t* readings = { ldr_all, read_energy() };
-            update_readings(ldr_all);
+            update_readings(ldr_all, read_energy());
             if (search_char.value()) {
                 search_char.setValue(false);
                 sleep = search();
