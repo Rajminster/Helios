@@ -21,7 +21,7 @@ BLEBoolCharacteristic power_char("6E400007-B5A3-F393-E0A9-E50E24DCCA9E",
 BLEBoolCharacteristic search_char("6E400008-B5A3-F393-E0A9-E50E24DCCA9E",
     BLERead | BLEWrite | BLENotify);
 
-BLEUnsignedCharCharacteristic* characteristics = {
+BLEUnsignedCharCharacteristic characteristics[NUM_LDR] = {
     nw_ldr_char, ne_ldr_char, sw_ldr_char, se_ldr_char };
 
 BLEDescriptor nw_descriptor = BLEDescriptor("2901", "NW LDR Percentage");
@@ -80,7 +80,7 @@ bool off;
 void update_readings(int16_t* readings, u_int16_t energy_new)
 {
     int i;
-    u_int16_t curr_reading;
+    u_int8_t curr_reading;
 
     /* First update LDR values if necessary */
     for (i = 0; i < NUM_LDR; i++) {
@@ -105,12 +105,6 @@ void update_readings(int16_t* readings, u_int16_t energy_new)
         energy_char.setValue(energy_new);
         energy = energy_new;
     }
-}
-
-// TODO
-u_int16_t read_energy()
-{
-    return 0;
 }
 
 /*
@@ -156,7 +150,7 @@ void run(bool bluetooth)
 
         /* Check if button for power or initiating a search were pressed */
         if (bluetooth) {
-            update_readings(ldr_all, read_energy());
+            update_readings(ldr_all, read_current());
             if (search_char.value()) {
                 search_char.setValue(false);
                 sleep = search();
