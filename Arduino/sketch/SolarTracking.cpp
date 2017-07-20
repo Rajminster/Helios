@@ -39,9 +39,7 @@ void initialize()
     Serial.println("\n***\n*** Motors approaching initial positions\n***");
     pan_speed(STOP_PAN);
     tilt_pane(TILT_INIT); // 45 degrees to prevent pane from shading all LDRs
-
-    /* Wait for motors to finish moving */
-    delay(WRITE_DELAY);
+    delay(WRITE_DELAY); // wait for tilt to finish moving
 }
 
 void sleep(u_int32_t duration)
@@ -58,7 +56,7 @@ void sleep(u_int32_t duration)
 
 void turn_east()
 {
-    u_int8_t temp_angle = 0; // temp to know when a turn has been made
+    u_int8_t temp_angle = 0; // temp to know when a half rotation has been made
 
     /* Turn pane around to face direction of sunrise */
     Serial.println("\n***\n*** No power detected, moving panels East\n***");
@@ -100,11 +98,11 @@ double read_power()
 {
     /*
      * Power reading
-     *current = ADC value * 5V/1023 (for Arduino) / Rs * Rl
+     * current = ADC value * 5V/1023 (for Arduino) / Rs * Rl
      * => the converted sensor value is Vout * 1k Ohms, and the Load resistor
      * is 10k ohms
      */
-    double sensorVal = (analogRead(DC_PIN) * VREF / 1023);
+    double sensorVal = analogRead(DC_PIN) * VREF / 1023;
     double current = sensorVal / 100;
     double v = sensorVal / 1000; // voltage = sensor value / 1k Ohms
     Serial.print("\n***\n*** Power generated: ");
@@ -143,14 +141,14 @@ bool search()
 {
     int16_t* readings;
     u_int16_t temp_angle = 0; // temp to know when a full rotation has occurred
-    pan_speed(SEARCH);
     /* Make sure pane is tilted at a 45 degree */
     if (tilt_angle != TILT_INIT) {
         tilt_pane(TILT_INIT);
         delay(WRITE_DELAY);
     }
+    pan_speed(SEARCH);
 
-    /* Perform NUM_LOOP loops to search for a significant light source */
+    /* Perform NUM_LOOP full loops to search for a significant light source */
     Serial.println("\n***\n*** Initiating search for power source\n***");
     /* Rotate the device fully NUM_LOOP times */
     while (temp_angle <= 360 * NUM_LOOP) {
@@ -184,25 +182,22 @@ void track()
 
     /*
      * Handle horizontal readings first to prevent any 90 degree tilt angle edge
-     * cases
-     */
-
-    /*
+     * cases.
+     *
      * Check if the horizontal reading difference exceeds the track tolerance.
      * This would mean the pan Servo motor should rotate either clockwise or
      * counterclockwise, depending on the sign of dh, in order to more directly
      * face The Sun
      */
     if (abs(dh) > TRACK_DIFF) {
-        /* Side labeled as West has more light */
         if (dh > 0) {
             /*
              * If the LDRs labeled as Western receive more light, then depending
              * on the angle of tilt the device should move either clockwise or
              * counterclockwise. If the angle is less than 90 degrees, then the
-             * device should move clockwise (increase in rotational angle). If
-             * the tilt angle is greater than 90 degrees (West and East will be
-             * switched) then move in the opposite direction, counterclockwise
+             * device should move clockwise. If the tilt angle is greater than
+             * 90 degrees (West and East will be switched) then move in the
+             * opposite direction, counterclockwise
              */
             pan_speed(tilt_angle <= 90 ? TRACK_CW : TRACK_CCW);
         } else {
@@ -238,7 +233,7 @@ void track()
 
 void pan_speed(u_int8_t speed)
 {
-    /* Make sure pan_angle is within the range 0 to 180 */
+    /* Make sure speed is within the range 0 to 180 */
     if (speed <= MAX_PAN) {
         pan.write(speed);
     }
