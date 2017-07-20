@@ -67,7 +67,7 @@
  * 2017-06-24
  *
  * AUTHORS:
- * Nikola Istvanic
+ * Nikola Istvanic, Dorairaj Rammohan
  *
  */
 #ifndef SolarTracking_h
