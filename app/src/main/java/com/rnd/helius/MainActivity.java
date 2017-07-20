@@ -2,6 +2,8 @@ package com.rnd.helius;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
@@ -42,20 +44,11 @@ public class MainActivity extends AppCompatActivity {
     TextView powerText;
     Handler bluetoothIn;
     static String address;
-    ConnectedThread mConnectedThread;
     String uuid = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
-    ArrayList<HashMap<String, String>> gattServiceData =
-            new ArrayList<HashMap<String, String>>();
-    ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData
-            = new ArrayList<ArrayList<HashMap<String, String>>>();
-    ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
-            new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+    String ldr = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";
 
-    final int handlerState = 0;                         //used to identify handler message
-    private BluetoothAdapter btAdapter = null;
-    private BluetoothSocket btSocket = null;
-    private StringBuilder recDataString = new StringBuilder();
     BluetoothDevice tracker;
+    BluetoothAdapter bluetooth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,135 +100,200 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        BluetoothAdapter bluetooth = BluetoothAdapter.getDefaultAdapter();
+        bluetooth = BluetoothAdapter.getDefaultAdapter();
         if (bluetooth != null && !bluetooth.isEnabled()) {
             Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(turnOn, 0);
         }
         Set<BluetoothDevice> pairedDevices = bluetooth.getBondedDevices();
         for (BluetoothDevice bt : pairedDevices) {
-           // if (bt.getName().equals("Solar Tracker")) {
+            if (bt.getName().equals("Helius Panel")) {
                 tracker = bt;
                 Log.d("FOUND", bt.getName());
-           // }
-        }
-
-//        BluetoothManager bluetoothManager = (BluetoothManager) getApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
-//        List<BluetoothDevice> devices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
-//        for(BluetoothDevice device : devices) {
-//            if(device.getType() == BluetoothDevice.DEVICE_TYPE_LE) {
-//                Log.d("GOT", "EM");
-//            }
-//        }
-//        BluetoothGattService gattService = new BluetoothGattService(UUID.fromString(uuid), BluetoothGattService.SERVICE_TYPE_PRIMARY);
-//        BluetoothGattCharacteristic cha = gattService.getCharacteristic(UUID.fromString("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"));
-        //List<BluetoothGattDescriptor> des =  cha.getDescriptors();
-        // Log.d("CHA CHA", cha.toString());
-
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (tracker != null) {
-            try {
-                //Don't leave Bluetooth sockets open when leaving activity
-                btSocket.close();
-            } catch (IOException e2) {
-                //insert code to deal with this
             }
         }
     }
 
+    private static final String TAG = "BLEDevice";
+
+    public static final String EXTRA_BLUETOOTH_DEVICE = "BT_DEVICE";
+    private BluetoothAdapter mBTAdapter;
+    private BluetoothDevice mDevice;
+    private BluetoothGatt mConnGatt;
+    private int mStatus;
+
+
+    private final BluetoothGattCallback mGattcallback = new BluetoothGattCallback() {
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status,
+                                            int newState) {
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                mStatus = newState;
+                mConnGatt.discoverServices();
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                mStatus = newState;
+                runOnUiThread(new Runnable() {
+                    public void run() {
+
+                    }
+
+                    ;
+                });
+            }
+        }
+
+        ;
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            for (BluetoothGattService service : gatt.getServices()) {
+                if ((service == null) || (service.getUuid() == null)) {
+                    continue;
+                }
+                runOnUiThread(new Runnable() {
+                    public void run() {
+
+                    }
+
+                    ;
+                });
+            }
+
+        }
+
+        ;
+
+        @Override
+        public void onCharacteristicRead(BluetoothGatt gatt,
+                                         BluetoothGattCharacteristic characteristic, int status) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                if (ldr.equalsIgnoreCase(characteristic.getUuid().toString())) {
+                    final String name = characteristic.getStringValue(0);
+
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+//                            mReadManufacturerNameButton.setText(name);
+                            Log.d("YAAAAAAAAAAAAAAAAAAAAY?", "I HAT ETHIS FUCKING SHT");
+
+                        }
+
+                        ;
+                    });
+                }
+            }
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt,
+                                          BluetoothGattCharacteristic characteristic, int status) {
+        }
+    };
+
+
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
-        if (tracker != null) {
-            //Get MAC address from DeviceListActivity via intent
-            Intent intent = getIntent();
 
-            //Get the MAC address from the DeviceListActivty via EXTRA
-            address = tracker.getAddress();
+        init();
+    }
 
-            //create device and set the MAC address
-            //BluetoothDevice device = btAdapter.getRemoteDevice(address);
-
-            try {
-                btSocket = tracker.createRfcommSocketToServiceRecord(UUID.fromString(uuid));
-            } catch (IOException e) {
-                Toast.makeText(getBaseContext(), "Socket creation failed", Toast.LENGTH_LONG).show();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mConnGatt != null) {
+            if ((mStatus != BluetoothProfile.STATE_DISCONNECTING)
+                    && (mStatus != BluetoothProfile.STATE_DISCONNECTED)) {
+                mConnGatt.disconnect();
             }
-            // Establish the Bluetooth socket connection.
-            try {
-                btSocket.connect();
-            } catch (IOException e) {
-                try {
-                    btSocket.close();
-                } catch (IOException e2) {
-                    //insert code to deal with this
-                }
-            }
-            mConnectedThread = new ConnectedThread(btSocket);
-            mConnectedThread.start();
-            mConnectedThread.run();
-
-            //I send a character when resuming.beginning transmission to check device is connected
-            //If it is not an exception will be thrown in the write method and finish() will be called
-            //mConnectedThread.write("x");
+            mConnGatt.close();
+            mConnGatt = null;
         }
     }
 
-    //create new class for connect thread
-    private class ConnectedThread extends Thread {
-        private final InputStream mmInStream;
-        private final OutputStream mmOutStream;
-
-        //creation of the connect thread
-        public ConnectedThread(BluetoothSocket socket) {
-            InputStream tmpIn = null;
-            OutputStream tmpOut = null;
-
-            try {
-                //Create I/O streams for connection
-                tmpIn = socket.getInputStream();
-                tmpOut = socket.getOutputStream();
-            } catch (IOException e) {
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.read_manufacturer_name_button) {
+            if ((v.getTag() != null)
+                    && (v.getTag() instanceof BluetoothGattCharacteristic)) {
+                BluetoothGattCharacteristic ch = (BluetoothGattCharacteristic) v
+                        .getTag();
+                if (mConnGatt.readCharacteristic(ch)) {
+                    setProgressBarIndeterminateVisibility(true);
+                }
+            }
+        } else if (v.getId() == R.id.read_serial_number_button) {
+            if ((v.getTag() != null)
+                    && (v.getTag() instanceof BluetoothGattCharacteristic)) {
+                BluetoothGattCharacteristic ch = (BluetoothGattCharacteristic) v
+                        .getTag();
+                if (mConnGatt.readCharacteristic(ch)) {
+                    setProgressBarIndeterminateVisibility(true);
+                }
             }
 
-            mmInStream = tmpIn;
-            mmOutStream = tmpOut;
-        }
-
-
-        public void run() {
-            byte[] buffer = new byte[256];
-            int bytes;
-
-            // Keep looping to listen for received messages
-            while (true) {
-                try {
-                    bytes = mmInStream.read(buffer);            //read bytes from input buffer
-                    String readMessage = new String(buffer, 0, bytes);
-                    // Send the obtained bytes to the UI Activity via handler
-                    bluetoothIn.obtainMessage(handlerState, bytes, -1, readMessage).sendToTarget();
-                    Log.d("LOOP", readMessage);
-                } catch (IOException e) {
-                    break;
+        } else if (v.getId() == R.id.write_alert_level_button) {
+            if ((v.getTag() != null)
+                    && (v.getTag() instanceof BluetoothGattCharacteristic)) {
+                BluetoothGattCharacteristic ch = (BluetoothGattCharacteristic) v
+                        .getTag();
+                ch.setValue(new byte[]{(byte) 0x03});
+                if (mConnGatt.writeCharacteristic(ch)) {
+                    setProgressBarIndeterminateVisibility(true);
                 }
             }
         }
+    }
 
-        //write method
-        public void write(String input) {
-            byte[] msgBuffer = input.getBytes();           //converts entered String into bytes
-            try {
-                mmOutStream.write(msgBuffer);                //write bytes over BT connection via outstream
-            } catch (IOException e) {
-                //if you cannot write, close the application
-                Toast.makeText(getBaseContext(), "Connection Failure", Toast.LENGTH_LONG).show();
+    private void init() {
+        mBTAdapter = bluetooth;
+
+        if (mBTAdapter == null) {
+            Toast.makeText(this, "GET FUCKED", Toast.LENGTH_SHORT)
+                    .show();
+            finish();
+            return;
+        }
+
+        // check BluetoothDevice
+        if (mDevice == null) {
+            mDevice = getBTDeviceExtra();
+            if (mDevice == null) {
                 finish();
+                return;
+            }
+        }
 
+        // connect to Gatt
+        if ((mConnGatt == null)
+                && (mStatus == BluetoothProfile.STATE_DISCONNECTED)) {
+            // try to connect
+            mConnGatt = mDevice.connectGatt(this, false, mGattcallback);
+            mStatus = BluetoothProfile.STATE_CONNECTING;
+        } else {
+            if (mConnGatt != null) {
+                // re-connect and re-discover Services
+                mConnGatt.connect();
+                mConnGatt.discoverServices();
+            } else {
+                Log.e(TAG, "state error");
+                finish();
+                return;
             }
         }
     }
+
+    private BluetoothDevice getBTDeviceExtra() {
+        Intent intent = getIntent();
+        if (intent == null) {
+            return null;
+        }
+
+        Bundle extras = intent.getExtras();
+        if (extras == null) {
+            return null;
+        }
+
+        return extras.getParcelable(EXTRA_BLUETOOTH_DEVICE);
+    }
+
 }
