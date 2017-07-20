@@ -102,9 +102,10 @@ float read_power()
     // current = ADC value * 5V/1023 (for Arduino) / Rs * Rl
     // => the converted sensor value is Vout * 1k Ohms, and the Load resistor
     // is 10k ohms
-    float current = (analogRead(DC_PIN) * VREF / 1023.) / 100;
+    float sensorVal = (analogRead(DC_PIN) * VREF / 1023.)
+    float current = sensorVal / 100;
     // v = sensor value / 1k Ohms
-    float v = (analogRead(DC_PIN) * VREF / 1023.) / 1000;
+    float v = sensorVal / 1000;
     Serial.print("\n***\n*** Power generated: ");
     Serial.print(current);
     Serial.println(" Watts\n***");
