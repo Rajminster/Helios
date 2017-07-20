@@ -53,7 +53,6 @@ void loop()
 {
     /* Listen for BLE central (non-server) to connect to */
     BLECentral central = blep.central();
-
     u_int16_t nw_curr_reading = read_ldr((sensor) 0);
 
     /* If connected to a central device */
