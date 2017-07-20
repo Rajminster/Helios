@@ -98,11 +98,13 @@ int16_t* read_ldr_all()
 
 float read_power()
 {
-    float ret = analogRead(DC_PIN) * VREF / 102300.;
+    /*  */
+    float current = (analogRead(DC_PIN) * VREF / 1023.) / 100;
+    float v = current / 1000;
     Serial.print("\n***\n*** Power generated: ");
-    Serial.print(ret);
+    Serial.print(current);
     Serial.println(" Watts\n***");
-    return ret;
+    return current * v;
 }
 
 int16_t _get_dh()
