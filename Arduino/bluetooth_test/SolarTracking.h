@@ -38,17 +38,21 @@
  * must tilt at a decreasing angle.
  *
  * This library allows the pane containing the solar panels and LDR sensors to
- * track The Sun in 360 degrees of rotational motion and 180 degrees of tilting
- * motion.
+ * track The Sun in 360 degrees of continuous, rotational motion and 180 degrees
+ * of tilting motion.
  *
  * Motion of the pane is controlled in two dimensions through two different
  * Servo motors. The entire pane containing the LDRs and solar panels is rotated
- * (or panned) through a 360 degree Servo motor which is used in
- * SolarTracking.cpp as pan. The pane itself where the LDRs are is tilted by
- * another Servo motor known as tilt. This motor can only go from 0 degrees to
- * 180 degrees. Since pan has a range of values greater than 255, its angle is
- * represented by an unsigned short; tilt's angle is represented by an unsigned
- * char.
+ * (or panned) through a 360 degree continuous motion Servo motor which is
+ * defined in SolarTracking.cpp as pan. The pane itself where the LDRs are
+ * located is tilted by another Servo motor known as tilt. This motor can only
+ * go from 0 degrees to 180 degrees. Values written to the pan motor are speed
+ * of the motor which range from 0 to 180; similarly, values written to the tilt
+ * motor are the angle which the motor should face which will range from 0 to
+ * 180 degrees. For pan, the closer the speed is to 90, the slower the motion of
+ * panning. The closer the value is to 0 or 180, the faster the motor will move.
+ * If the value is less than 90, the motor will move clockwise; if the value is
+ * greater than 90, the motor will move counterclockwise.
  *
  * Whenever all four of the device's LDRs measure a consistently low reading or
  * if The Sun wasn't found on its initial search, the device will enter a deep
@@ -128,23 +132,16 @@ const double VREF = 5.0; // reference voltage
  * SolarTracking.cpp.
  *
  * After the write digital pins have been attached, write the correct starting
- * angles for both motors. For the tilt Servo motor, this angle will be 0
- * degrees (meaning the pane with the LDRs and solar panels will be
- * perpendicular to the ground); for the pan Servo motor, this angle will also
- * be 0 degrees
- *
- * Wait for WRITE_DELAY milliseconds for both motors to go to their written
- * values.
+ * angle for the tilt motor and ensure the pan motor is not moving. For the tilt
+ * Servo motor, this angle will be 45 degrees; for the pan Servo motor, the
+ * initial speed will be 90 which prevents any continuous motor movement. Wait
+ * for WRITE_DELAY milliseconds for the tilt motor to finish moving.
  */
 void initialize();
 
 /*
- * Puts the Arduino 101 into a low power sleep mode for the duration parameter
- * milliseconds.
- *
- * The Arduino 101 enters a sleep mode where significantly less power is used.
- * The device will only go to sleep for a finite amount of time which is defined
- * by the parameter supplied.
+ * Puts the Arduino 101 into a low power, deep sleep mode for the duration
+ * parameter milliseconds.
  *
  * During normal execution, if the Arduino 101 is on and needs to go to sleep,
  * for every call to loop, the device will check if it needs to exit this deep
@@ -155,7 +152,8 @@ void initialize();
  * If the device is considered off, then for every call to loop, the device will
  * immediately go to deep sleep and check if the user wants the device to turn
  * on. This means the device won't consider readings from the LDR but just what
- * the user wants.
+ * the user wants. When off, the device will sleep for a significantly longer
+ * duration of time.
  */
 void sleep(u_int32_t duration);
 
@@ -168,15 +166,18 @@ void sleep(u_int32_t duration);
  * time. This library sees these conditions as reason enough to turn the device
  * around in order to face the approximate direction of sunrise.
  *
- * The angle which the device will now face is the current angle + 180 degrees
- * mod 361 so the value will be from 0 to 360. This new angle should make the
- * device face the opposite direction which (if the assumption of sunset was
- * correct) should be the general direction of sunrise.
+ * In order to turn aruond, this method sets the speed of the continuous motor
+ * to the speed used in the search method. Knowing the speed of the motor, the
+ * change in angle which the device is facing with time is known. With this
+ * information, this method waits for the device to simply have a change in
+ * angle faced of 180 degrees. This angle should be the direction of sunrise.
  */
 void turn_east();
 
 /*
- * Read a single LDR sensor and return that value as a signed short int.
+ * Read a single LDR sensor and return that value as a signed 16-bit int. The
+ * return value must be signed because signed arithmetic is performed on these
+ * the LDR readings in the _get_dh and _get_dv methods.
  *
  * This method takes in an enum which is declared above and returns the value of
  * an analogRead of that analog pin. The value of the sensor read is printed as
@@ -201,8 +202,8 @@ int16_t* read_ldr_all();
  * Read the value from the DC current sensor to obtain the amount of power
  * generated by this device.
  *
- * Return and print the value from reading the DC current sensor. This value
- * should be the power generated.
+ * Return and print the power obtained by using equations for power, current,
+ * and voltage using the reading the DC current sensor.
  */
 double read_power();
 
@@ -237,18 +238,19 @@ int16_t _get_dh();
 int16_t _get_dv();
 
 /*
- * Search for The Sun or a significantly intense source of light, starting at
- * the initial angle for the pan Servo motor, rotating clockwise.
+ * Search for The Sun or a significantly intense source of light, using a
+ * constant, clockwise speed for the pan Servo motor.
  *
  * Tolerance for this method is much higher in order to be sure that The Sun is
  * what's being found.
  *
- * The pan Servo motor will start at degree 0, begin to move clockwise, and
- * search for a point where there is a difference in either Northern labeled
- * LDRs and Southern labeled LDRs or Western labeled LDRs and Eastern labeled
- * LDRs which has magnitude greater than SEARCH_TOL. Once this point is reached,
- * the device switches to tracking The Sun with more precise pan and tilt Servo
- * motor movement.
+ * A temporary angle which represents the direction the device will face will
+ * start at degree 0, and as the pan Servo begins to move clockwise at a
+ * constant speed, it will search for a point where there is a difference in
+ * either Northern labeled LDRs and Southern labeled LDRs or Western labeled
+ * LDRs and Eastern labeled LDRs which has magnitude greater than SEARCH_TOL.
+ * Once this point is reached, the device switches to tracking The Sun with more
+ * precise pan and tilt Servo motor movement.
  *
  * If the device makes NUM_LOOP full loops without finding a significantly
  * bright source of light, the device will be placed in low power sleep mode.
@@ -258,6 +260,8 @@ int16_t _get_dv();
  * device should be sleeping or actively tracking The Sun. If a power source is
  * not found, then this method will return true to indicate that the device
  * should go immediately to sleep mode in the sketch loop method.
+ *
+ * At the end of this method, the pan Servo motor will stop moving.
  */
 bool search();
 
@@ -275,10 +279,10 @@ bool search();
  * If the Northern labeled LDRs receive more sunlight, then the angle of pane
  * tilt should increase; otherwise it should decrease.
  *
- * When tilting or rotating the device, the tilt_pane or rotate_pane methods
- * (see below) are used. They only change the angle of rotation or tilt by one
- * degree at a time because this small change in angle is all that is needed
- * when tracking The Sun.
+ * When tilting or rotating the device, the tilt_pane or pan_speed methods
+ * (see below) are used. A low value is used for the pan rotational movement if
+ * required, and the tilt_angle degree is changed minutely because this small
+ * change in angle is all that is needed when tracking The Sun.
  *
  * Tracking first handles rotating the device before handling tilting pane
  * because certain solar positions may not require a tilt at first, but after
