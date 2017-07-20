@@ -55,6 +55,7 @@ void sleep(u_int32_t duration)
     Serial.println("\n***\n*** Main power online\n***");
 }
 
+
 void turn_east()
 {
     u_int8_t temp_angle = 0; // temp to know when a turn has been made
@@ -93,6 +94,11 @@ int16_t* read_ldr_all()
         ret[i] = read_ldr((sensor) i);
     }
     return ret;
+}
+
+u_int16_t read_current()
+{
+    return 0;
 }
 
 int16_t _get_dh()
