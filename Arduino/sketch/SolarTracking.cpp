@@ -108,7 +108,7 @@ double read_power()
     double current = sensorVal / 100;
     double v = sensorVal / 1000; // voltage = sensor value / 1k Ohms
     Serial.print("\n***\n*** Power generated: ");
-    Serial.print(current);
+    Serial.print(current * v);
     Serial.println(" Watts\n***");
     return current * v; // Power = V * I
 }
