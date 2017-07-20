@@ -6,37 +6,38 @@ BLEPeripheral blep;
 BLEService st = BLEService("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 
 /* BLE LDR Characteristics. Read and get notified when value changes */
-BLECharacteristic nw_ldr_char("6E400002-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
-    | BLENotify, 2);
-BLECharacteristic ne_ldr_char("6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
-    | BLENotify, 2);
-BLECharacteristic sw_ldr_char("6E400004-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
-    | BLENotify, 2);
-BLECharacteristic se_ldr_char("6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
-    | BLENotify, 2);
-// BLECharacteristic energy_char("6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
-//    | BLENotify, 2);
-BLECharacteristic power_on("6E400007-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
-    | BLENotify, 2);
-    BLECharacteristic power_off("6E400008-B5A3-F393-E0A9-E50E24DCCA9E", BLERead
-    | BLENotify, 2);
+BLEUnsignedCharCharacteristic nw_ldr_char(
+    "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify, 2);
+BLEUnsignedCharCharacteristic ne_ldr_char(
+    "6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify, 2);
+BLEUnsignedCharCharacteristic sw_ldr_char(
+    "6E400004-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify, 2);
+BLEUnsignedCharCharacteristic se_ldr_char(
+    "6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLUEWrite | BLENotify, 2);
+BLEUnsignedShortCharacteristic energy_char(
+    "6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify, 2);
+BLEBoolCharacteristic power_char("6E400007-B5A3-F393-E0A9-E50E24DCCA9E",
+    BLERead | BLEWrite | BLENotify, 2);
+BLEBoolCharacteristic search_char("6E400008-B5A3-F393-E0A9-E50E24DCCA9E",
+    BLERead | BLEWrite | BLENotify, 2);
 
-BLECharacteristic characteristics[6] = { nw_ldr_char, ne_ldr_char, sw_ldr_char,
-    se_ldr_char, power_on, power_off};
+BLECharacteristic characteristics = {
+    nw_ldr_char, ne_ldr_char, sw_ldr_char, se_ldr_char, energy_char };
 
-BLEDescriptor nw_descriptor = BLEDescriptor("2901", "NW Labeled LDR");
-BLEDescriptor ne_descriptor = BLEDescriptor("2901", "NE Labeled LDR");
-BLEDescriptor sw_descriptor = BLEDescriptor("2901", "SW Labeled LDR");
-BLEDescriptor se_descriptor = BLEDescriptor("2901", "SE Labeled LDR");
-//BLEDescriptor energy_descriptor = BLEDescriptor("2901", "Energy Generated");
+BLEDescriptor nw_descriptor = BLEDescriptor("2901", "NW LDR Percentage");
+BLEDescriptor ne_descriptor = BLEDescriptor("2901", "NE LDR Percentage");
+BLEDescriptor sw_descriptor = BLEDescriptor("2901", "SW LDR Percentage");
+BLEDescriptor se_descriptor = BLEDescriptor("2901", "SE LDR Percentage");
+BLEDescriptor energy_descriptor = BLEDescriptor("2901", "Energy Generated");
+BLEDescriptor power_descriptor = BLEDescriptor("2901", "Power signal");
+BLEDescriptor search_descriptor = BLEDescriptor("2901", "Search signal");
 
-// u_int16 energy = 0; // last energy reading
-int16_t nw = 0; // last NW LDR reading
-int16_t ne = 0; // last NE LDR reading
-int16_t sw = 0; // last SW LDR reading
-int16_t se = 0; // last SE LDR reading
-
-int16_t old_readings[NUM_LDR] = { nw, ne, sw, se };
+u_int8_t nw = 0; // last NW LDR percentage reading
+u_int8_t ne = 0; // last NE LDR percentage reading
+u_int8_t sw = 0; // last SW LDR percentage reading
+u_int8_t se = 0; // last SE LDR percentage reading
+u_int16_t energy = 0; // last energy reading
+u_int16_t old_readings = { nw, ne, sw, se, energy };
 
 /*
  * Variable for keeping track of how many times in a row all LDRs measure a
@@ -63,7 +64,7 @@ bool sleeping;
  * should stay off regardless of whether or not the LDRs measure a significantly
  * high reading. The only way to turn the device back on is for the user to do
  * so using the Android application.
- * 
+ *
  * When the device is on, a high enough reading from an LDR sensor will cause
  * it to break from its sleep state; whenever it is off, however, the device
  * will ignore the LDR readings and stay sleeping until the user gives the
@@ -76,30 +77,28 @@ bool off;
  * every DELAY milliseconds. If there is a change in value, any peripheral
  * device connected to this Service via Bluetooth will be notified.
  */
-void update_ldr_readings(int16_t* readings)
+void update_readings(int16_t* readings)
 {
     int i;
+    u_int16_t curr_reading;
 
-    /* Check for changes in LDR readings */
-    for (i = 0; i < NUM_LDR; i++) {
-        /* Change in LDR measurement */
-        u_int16_t curr_reading = map(readings[i], 0, 1023, 0, 100);
+    /* First update LDR values if necessary */
+    for (i = 0; i < NUM_LDR + 1; i++) {
+        /* Convert raw reading to percentage */
+        curr_reading =
+            i == NUM_LDR ? curr_reading : map(readings[i], 0, 1023, 0, 100);
         if (curr_reading != old_readings[i]) {
             Serial.print("\n***\n*** Updating LDR reading in ");
             Serial.print((sensor) i);
             Serial.print(" LDR to ");
             Serial.print(curr_reading);
             Serial.println("\n***");
-            const unsigned char new_LDR_reading[2] = {
-                0, (unsigned char) curr_reading
-            };
-            /* update the current measurement characteristic */
-            characteristics[i].setValue(new_LDR_reading, 2);
+            characteristics[i].setValue(curr_reading);
             old_readings[i] = curr_reading;
         }
     }
 }
-   
+
 /*
  * Method which controls when to track and when to put the Arduino 101 to sleep.
  *
@@ -126,31 +125,36 @@ void run(bool bluetooth)
     /* If off, don't look at LDR readings; stay off until user allows it */
     if (off) {
         sleep(SLEEP_OFF);
-        /* TODO
-        if (on_button_pressed) {
+        /* Change power status */
+        if (power_char.value()) {
+            power_char.setValue(false);
             off = false;
         }
-        */
     } else {
         int16_t* ldr_all = read_ldr_all();
-    
+
         /* If at least one LDR has a significant reading, stop sleeping */
         if (ldr_all[0] >= LOW_READ || ldr_all[1] >= LOW_READ
             || ldr_all[2] >= LOW_READ || ldr_all[3] >= LOW_READ) {
             sleeping = false;
             times_low = 0;
         }
-    
-        /* Check if the button for initiating a search has been pressed */
+
+        /* Check if button for power or initiating a search were pressed */
         if (bluetooth) {
-            update_ldr_readings(ldr_all);
-            /* TODO
-            if (button_pressed) {
+            // int16_t* readings = { ldr_all, read_energy() };
+            update_readings(ldr_all);
+            if (search_char.value()) {
+                search_char.setValue(false);
                 sleep = search();
             }
-            */
+            /* Change power status */
+            if (power_char.value()) {
+                power_char.setValue(false);
+                off = true;
+            }
         }
-    
+
         /*
          * If low readings have been measured on all LDRs consistently conclude
          * it's night; face the opposite direction (presumably East) and put
@@ -162,7 +166,7 @@ void run(bool bluetooth)
             turn_east(); // face direction of sunrise
             sleeping = true;
         }
-    
+
         /* If The Sun wasn't found or it's night time, only sleep */
         if (sleeping) {
             sleep(SLEEP_ON); // Arduino 101 is now sleeping briefly
@@ -190,32 +194,31 @@ void setup()
     blep.addAttribute(ne_descriptor);
     blep.addAttribute(sw_descriptor);
     blep.addAttribute(se_descriptor);
+    blep.addAttribute(energy_descriptor);
+    blep.addAttribute(power_descriptor);
+    blep.addAttribute(search_descriptor);
     blep.addAttribute(ne_ldr_char);
     blep.addAttribute(sw_ldr_char);
     blep.addAttribute(se_ldr_char);
-    blep.addAttribute(power_on);
-    blep.addAttribute(power_off);
-    // blep.addAttribute(energy_Char);
+    blep.addAttribute(energy_char);
+    blep.addAttribute(power_char);
+    blep.addAttribute(search_char);
 
     /* Initialize Bluetooth Characteristic values */
-    const unsigned char nw_char_array[2] = { 0, (unsigned char) 0 };
-    const unsigned char ne_char_array[2] = { 0, (unsigned char) 0 };
-    const unsigned char sw_char_array[2] = { 0, (unsigned char) 0 };
-    const unsigned char se_char_array[2] = { 0, (unsigned char) 0 };
-    // const unsigned char energy_char_array[2] = { 0, (unsigned char) 0 };
-
-    nw_ldr_char.setValue(nw_char_array, 2);
-    ne_ldr_char.setValue(ne_char_array, 2);
-    sw_ldr_char.setValue(sw_char_array, 2);
-    se_ldr_char.setValue(se_char_array, 2);
-    // energyChar.setValue(energy_char_array, 2);
+    nw_ldr_char.setValue(0);
+    ne_ldr_char.setValue(0);
+    sw_ldr_char.setValue(0);
+    se_ldr_char.setValue(0);
+    energy_char.setValue(0);
+    power_char.setValue(false);
+    search_char.setValue(false);
 
     /* Setup baud rate, pins, interrupt handling, and initialize Servo angles */
     initialize();
 
     /* Search for The Sun, sleep if sun wasn't found; track otherwise */
-    sleeping = search();
     off = false;
+    sleeping = search();
 
     blep.begin();
     Serial.println("\n***\n*** Bluetooth system activated, awaiting peripheral "
