@@ -86,7 +86,7 @@ void update_readings(int16_t* readings)
     for (i = 0; i < NUM_LDR + 1; i++) {
         /* Convert raw reading to percentage */
         curr_reading =
-            i == NUM_LDR ? curr_reading : map(readings[i], 0, 1023, 0, 100);
+            i == NUM_LDR ? readings[i] : map(readings[i], 0, 1023, 0, 100);
         if (curr_reading != old_readings[i]) {
             Serial.print("\n***\n*** Updating LDR reading in ");
             Serial.print((sensor) i);
