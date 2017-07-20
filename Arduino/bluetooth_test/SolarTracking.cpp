@@ -96,15 +96,21 @@ int16_t* read_ldr_all()
     return ret;
 }
 
-float read_power()
+double read_power()
 {
-    /*  */
-    float current = (analogRead(DC_PIN) * VREF / 1023.) / 100;
-    float v = current / 1000;
+    /*
+     * Power reading
+     *current = ADC value * 5V/1023 (for Arduino) / Rs * Rl
+     * => the converted sensor value is Vout * 1k Ohms, and the Load resistor
+     * is 10k ohms
+     */
+    double sensorVal = (analogRead(DC_PIN) * VREF / 1023);
+    double current = sensorVal / 100;
+    double v = sensorVal / 1000; // voltage = sensor value / 1k Ohms
     Serial.print("\n***\n*** Power generated: ");
-    Serial.print(current);
+    Serial.print(current * v);
     Serial.println(" Watts\n***");
-    return current * v;
+    return current * v; // Power = V * I
 }
 
 int16_t _get_dh()
