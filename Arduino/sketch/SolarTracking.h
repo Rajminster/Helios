@@ -66,8 +66,9 @@
  * CREATED:
  * 2017-06-24
  *
- * AUTHOR:
+ * AUTHORS:
  * Nikola Istvanic
+ *
  */
 #ifndef SolarTracking_h
 #define SolarTracking_h
