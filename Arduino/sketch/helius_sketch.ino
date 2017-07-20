@@ -16,10 +16,10 @@ BLEUnsignedCharCharacteristic se_ldr_char(
     "6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEUnsignedShortCharacteristic energy_char(
     "6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
-BLEBoolCharacteristic power_char("6E400007-B5A3-F393-E0A9-E50E24DCCA9E",
+BLEUnsignedCharCharacteristic power_char("6E400007-B5A3-F393-E0A9-E50E24DCCA9E",
     BLERead | BLEWrite | BLENotify);
-BLEBoolCharacteristic search_char("6E400008-B5A3-F393-E0A9-E50E24DCCA9E",
-    BLERead | BLEWrite | BLENotify);
+BLEUnsignedCharCharacteristic search_char(
+    "6E400008-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 
 BLEUnsignedCharCharacteristic characteristics[NUM_LDR] = {
     nw_ldr_char, ne_ldr_char, sw_ldr_char, se_ldr_char };
@@ -135,7 +135,7 @@ void run(bool bluetooth)
         sleep(SLEEP_OFF);
         /* Change power status */
         if (power_char.value()) {
-            power_char.setValue(false);
+            power_char.setValue(0);
             off = false;
         }
     } else {
@@ -152,12 +152,12 @@ void run(bool bluetooth)
         if (bluetooth) {
             update_readings(ldr_all, read_current());
             if (search_char.value()) {
-                search_char.setValue(false);
+                search_char.setValue(0);
                 sleeping = search();
             }
             /* Change power status */
             if (power_char.value()) {
-                power_char.setValue(false);
+                power_char.setValue(0);
                 off = true;
             }
         }
