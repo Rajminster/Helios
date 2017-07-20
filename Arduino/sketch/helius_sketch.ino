@@ -7,19 +7,19 @@ BLEService st = BLEService("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 
 /* BLE LDR Characteristics. Read and get notified when value changes */
 BLEUnsignedCharCharacteristic nw_ldr_char(
-    "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify, 2);
+    "6E400002-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEUnsignedCharCharacteristic ne_ldr_char(
-    "6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify, 2);
+    "6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEUnsignedCharCharacteristic sw_ldr_char(
-    "6E400004-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify, 2);
+    "6E400004-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEUnsignedCharCharacteristic se_ldr_char(
-    "6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLUEWrite | BLENotify, 2);
+    "6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLUEWrite | BLENotify);
 BLEUnsignedShortCharacteristic energy_char(
-    "6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify, 2);
+    "6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEBoolCharacteristic power_char("6E400007-B5A3-F393-E0A9-E50E24DCCA9E",
-    BLERead | BLEWrite | BLENotify, 2);
+    BLERead | BLEWrite | BLENotify);
 BLEBoolCharacteristic search_char("6E400008-B5A3-F393-E0A9-E50E24DCCA9E",
-    BLERead | BLEWrite | BLENotify, 2);
+    BLERead | BLEWrite | BLENotify);
 
 BLECharacteristic characteristics = {
     nw_ldr_char, ne_ldr_char, sw_ldr_char, se_ldr_char, energy_char };
@@ -142,6 +142,7 @@ void run(bool bluetooth)
 
         /* Check if button for power or initiating a search were pressed */
         if (bluetooth) {
+            // TODO
             // int16_t* readings = { ldr_all, read_energy() };
             update_readings(ldr_all);
             if (search_char.value()) {
