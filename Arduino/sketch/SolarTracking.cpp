@@ -215,6 +215,9 @@ void track()
              */
             pan_speed(tilt_angle <= 90 ? TRACK_CCW : TRACK_CW);
         }
+    } else {
+        /* Prevent the pan motor moving from this ideal position */
+        pan_speed(STOP_PAN);
     }
     /*
      * Check if the vertical reading difference exceeds the track tolerance.
