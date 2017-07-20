@@ -113,7 +113,7 @@ typedef unsigned int u_int32_t; // 32-bit unsigned integer [0 - 4294967295]
 const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
 const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
 const u_int8_t DC_PIN = 5; // analog pin for the DC sensor
-const u_int8_t VREF = 5; // reference voltage
+const double VREF = 5.0; // reference voltage
 
 /* PROTOTYPES */
 /*
@@ -203,7 +203,7 @@ int16_t* read_ldr_all();
  * Return and print the value from reading the DC current sensor. This value
  * should be the power generated.
  */
-float read_power();
+double read_power();
 
 /*
  * Read values from the NW and SW labeled LDRs, read values from the NE and SE
