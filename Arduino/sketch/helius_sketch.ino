@@ -77,7 +77,7 @@ bool off;
  * every DELAY milliseconds. If there is a change in value, any peripheral
  * device connected to this Service via Bluetooth will be notified.
  */
-void update_readings(int16_t* readings, u_int16_t energy_new)
+void update_readings(int16_t* readings, float energy_new)
 {
     int i;
     u_int8_t curr_reading;
@@ -150,7 +150,7 @@ void run(bool bluetooth)
 
         /* Check if button for power or initiating a search were pressed */
         if (bluetooth) {
-            update_readings(ldr_all, read_current());
+            update_readings(ldr_all, read_dc());
             if (search_char.value()) {
                 search_char.setValue(0);
                 sleeping = search();
