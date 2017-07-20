@@ -96,6 +96,11 @@ int16_t* read_ldr_all()
     return ret;
 }
 
+u_int16_t read_current()
+{
+    return 0;
+}
+
 int16_t _get_dh()
 {
     /* Average Western labeled LDRs and Eastern labeled LDRs */
