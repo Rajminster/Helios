@@ -195,6 +195,11 @@ int16_t read_ldr(sensor ldr);
 int16_t* read_ldr_all();
 
 /*
+ * TODO
+ */
+u_int16_t read_current();
+
+/*
  * Read values from the NW and SW labeled LDRs, read values from the NE and SE
  * LDRs, take average of each, subtract Eastern average from Western average,
  * and return.
