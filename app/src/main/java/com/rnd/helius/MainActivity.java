@@ -2,34 +2,28 @@ package com.rnd.helius;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothProfile;
-import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import com.polidea.rxandroidble.RxBleClient;
+import com.polidea.rxandroidble.RxBleConnection;
+import com.polidea.rxandroidble.RxBleDevice;
+import com.polidea.rxandroidble.internal.RxBleLog;
+
 import java.util.Set;
 import java.util.UUID;
+
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -46,14 +40,17 @@ public class MainActivity extends AppCompatActivity {
     static String address;
     String uuid = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
     String ldr = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";
+    UUID uldr = UUID.fromString(ldr);
 
     BluetoothDevice tracker;
     BluetoothAdapter bluetooth;
+    RxBleDevice bleDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         ldr0Button = (Button) findViewById(R.id.ldr0);
         ldr0Button.setText((int) (Math.random() * 100) + "");
@@ -109,191 +106,101 @@ public class MainActivity extends AppCompatActivity {
         for (BluetoothDevice bt : pairedDevices) {
             if (bt.getName().equals("Helius Panel")) {
                 tracker = bt;
-                Log.d("FOUND", bt.getName());
+//                Log.d("FOUND", bt.getName());
+//                BluetoothSocket sock;
+//                try {
+//                    sock = tracker.createInsecureRfcommSocketToServiceRecord(UUID.fromString(ldr));
+//                    sock.connect();
+//                    InputStreamReader is = new InputStreamReader(sock.getInputStream());
+//                    BufferedReader br = new BufferedReader(is);
+//                    String line;
+//                    while ((line = br.readLine()) != null) {
+//                        Log.d("READ", line);
+//                    }
+//                    br.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
             }
         }
-    }
+        /**
+         * Bluetooth Low Energy client code using the RxAndroidBle library
+         * Library can be found here: https://github.com/Polidea/RxAndroidBle
+         */
+        RxBleClient rxBleClient = RxBleClient.create(this);
+        RxBleClient.setLogLevel(RxBleLog.DEBUG);
 
-    private static final String TAG = "BLEDevice";
+//
+//        /**
+//         * Scan for Bluetooth Low Energy Devices
+//         */
+//        Subscription scanSubscription = rxBleClient.scanBleDevices(
+//                new ScanSettings.Builder()
+//                        // .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY) // change if needed
+//                        // .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES) // change if needed
+//                        .build()
+//                // add filters if needed
+//        )
+//                .subscribe(
+//                        scanResult -> {
+//                            // Process scan result here.
+//                            Log.d("BLE: ", scanResult.toString());
+//                        },
+//                        throwable -> {
+//                            // Handle an error here.
+//                        }s
+//                );
 
-    public static final String EXTRA_BLUETOOTH_DEVICE = "BT_DEVICE";
-    private BluetoothAdapter mBTAdapter;
-    private BluetoothDevice mDevice;
-    private BluetoothGatt mConnGatt;
-    private int mStatus;
+// When done, just unsubscribe.
+//        scanSubscription.unsubscribe();
 
+        String macAddress = "98:4F:EE:10:AB:C3";
+        bleDevice = rxBleClient.getBleDevice(macAddress);
 
-    private final BluetoothGattCallback mGattcallback = new BluetoothGattCallback() {
-        @Override
-        public void onConnectionStateChange(BluetoothGatt gatt, int status,
-                                            int newState) {
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
-                mStatus = newState;
-                mConnGatt.discoverServices();
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                mStatus = newState;
-                runOnUiThread(new Runnable() {
-                    public void run() {
-
-                    }
-
-                    ;
+        Subscription subscription = bleDevice.establishConnection(this, true)
+                .flatMap(rxBleConnection -> rxBleConnection.readCharacteristic(uldr))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bytes -> {
+                    // Read characteristic value.
+                    Log.d("TEST", bytes.toString());
                 });
-            }
-        }
 
-        ;
+// When done... unsubscribe and forget about connection teardown :)
+        subscription.unsubscribe();
 
-        @Override
-        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-            for (BluetoothGattService service : gatt.getServices()) {
-                if ((service == null) || (service.getUuid() == null)) {
-                    continue;
-                }
-                runOnUiThread(new Runnable() {
-                    public void run() {
+//        Subscription subscription2 = bleDevice.establishConnection(true)
+//                .flatMap(rxBleConnection -> rxBleConnection.readCharacteristic(UUID.fromString(ldr)))
+//                .subscribe(
+//                        characteristicValue -> {
+//                            // Read characteristic value.
+//                            Toast.makeText(this, characteristicValue.toString(), Toast.LENGTH_SHORT).show();
+//                            Log.d("Fuck", characteristicValue.toString());
+//                        },
+//                        throwable -> {
+//                            // Handle an error here.
+//                        }
+//                );
+//        subscription2.unsubscribe();
+//        PublishSubject<Void> disconnectTriggerSubject = PublishSubject.create();
+//        Observable<RxBleConnection> connectionObservable = device
+//                .establishConnection(false)
+//                .takeUntil(disconnectTriggerSubject)
+//                .compose(bindUntilEvent(PAUSE))
+//                .compose(new ConnectionSharingAdapter());
+//
+//        connectionObservable
+//                .flatMap(rxBleConnection -> rxBleConnection.readCharacteristic(UUID.fromString(ldr)))
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(bytes -> {
+//                    readOutputView.setText(new String(bytes));
+//                    readHexOutputView.setText(HexString.bytesToHex(bytes));
+//                    writeInput.setText(HexString.bytesToHex(bytes));
+//                }, this::onReadFailure);
 
-                    }
-
-                    ;
-                });
-            }
-
-        }
-
-        ;
-
-        @Override
-        public void onCharacteristicRead(BluetoothGatt gatt,
-                                         BluetoothGattCharacteristic characteristic, int status) {
-            if (status == BluetoothGatt.GATT_SUCCESS) {
-                if (ldr.equalsIgnoreCase(characteristic.getUuid().toString())) {
-                    final String name = characteristic.getStringValue(0);
-
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-//                            mReadManufacturerNameButton.setText(name);
-                            Log.d("YAAAAAAAAAAAAAAAAAAAAY?", "I HAT ETHIS FUCKING SHT");
-
-                        }
-
-                        ;
-                    });
-                }
-            }
-        }
-
-        @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt,
-                                          BluetoothGattCharacteristic characteristic, int status) {
-        }
-    };
-
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        init();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mConnGatt != null) {
-            if ((mStatus != BluetoothProfile.STATE_DISCONNECTING)
-                    && (mStatus != BluetoothProfile.STATE_DISCONNECTED)) {
-                mConnGatt.disconnect();
-            }
-            mConnGatt.close();
-            mConnGatt = null;
-        }
-    }
-
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.read_manufacturer_name_button) {
-            if ((v.getTag() != null)
-                    && (v.getTag() instanceof BluetoothGattCharacteristic)) {
-                BluetoothGattCharacteristic ch = (BluetoothGattCharacteristic) v
-                        .getTag();
-                if (mConnGatt.readCharacteristic(ch)) {
-                    setProgressBarIndeterminateVisibility(true);
-                }
-            }
-        } else if (v.getId() == R.id.read_serial_number_button) {
-            if ((v.getTag() != null)
-                    && (v.getTag() instanceof BluetoothGattCharacteristic)) {
-                BluetoothGattCharacteristic ch = (BluetoothGattCharacteristic) v
-                        .getTag();
-                if (mConnGatt.readCharacteristic(ch)) {
-                    setProgressBarIndeterminateVisibility(true);
-                }
-            }
-
-        } else if (v.getId() == R.id.write_alert_level_button) {
-            if ((v.getTag() != null)
-                    && (v.getTag() instanceof BluetoothGattCharacteristic)) {
-                BluetoothGattCharacteristic ch = (BluetoothGattCharacteristic) v
-                        .getTag();
-                ch.setValue(new byte[]{(byte) 0x03});
-                if (mConnGatt.writeCharacteristic(ch)) {
-                    setProgressBarIndeterminateVisibility(true);
-                }
-            }
-        }
-    }
-
-    private void init() {
-        mBTAdapter = bluetooth;
-
-        if (mBTAdapter == null) {
-            Toast.makeText(this, "GET FUCKED", Toast.LENGTH_SHORT)
-                    .show();
-            finish();
-            return;
-        }
-
-        // check BluetoothDevice
-        if (mDevice == null) {
-            mDevice = getBTDeviceExtra();
-            if (mDevice == null) {
-                finish();
-                return;
-            }
-        }
-
-        // connect to Gatt
-        if ((mConnGatt == null)
-                && (mStatus == BluetoothProfile.STATE_DISCONNECTED)) {
-            // try to connect
-            mConnGatt = mDevice.connectGatt(this, false, mGattcallback);
-            mStatus = BluetoothProfile.STATE_CONNECTING;
-        } else {
-            if (mConnGatt != null) {
-                // re-connect and re-discover Services
-                mConnGatt.connect();
-                mConnGatt.discoverServices();
-            } else {
-                Log.e(TAG, "state error");
-                finish();
-                return;
-            }
-        }
-    }
-
-    private BluetoothDevice getBTDeviceExtra() {
-        Intent intent = getIntent();
-        if (intent == null) {
-            return null;
-        }
-
-        Bundle extras = intent.getExtras();
-        if (extras == null) {
-            return null;
-        }
-
-        return extras.getParcelable(EXTRA_BLUETOOTH_DEVICE);
+    private boolean isConnected() {
+        return bleDevice.getConnectionState() == RxBleConnection.RxBleConnectionState.CONNECTED;
     }
 
 }
