@@ -46,7 +46,7 @@ public class BluetoothActivity extends AppCompatActivity {
                 status = "Bluetooth is not Enabled.";
             }
 
-            //Toast.makeText(this, status, Toast.LENGTH_LONG).show();   // Continue with bluetooth setup.
+            //Toast.makeText(this, status, Toast.LENGTH_LONG).show();   // Continue with mBluetoothAdapter setup.
 
             Set<BluetoothDevice> pairedDevices = bluetooth.getBondedDevices();
 
