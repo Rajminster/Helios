@@ -193,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             List<BluetoothGattService> services = gatt.getServices();
             Log.i("onServicesDiscovered", services.toString());
-            gatt.readCharacteristic(services.get(2).getCharacteristics().get(0));
+            gatt.readCharacteristic(services.get(2).getCharacteristics().get(5));
         }
 
         @Override
@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                                          BluetoothGattCharacteristic
                                                  characteristic, int status) {
             Log.i("onCharacteristicRead", characteristic.getUuid().toString());
-            Log.i("onCharacteristicValue", characteristic.getValue().toString());
+            Log.i("onCharacteristicValue", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8,0) + "");
             gatt.readDescriptor(characteristic.getDescriptors().get(0));
             //gatt.disconnect();
         }
