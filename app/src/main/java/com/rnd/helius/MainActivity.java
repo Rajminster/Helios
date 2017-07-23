@@ -10,13 +10,10 @@ import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -64,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private List<ScanFilter> filters;
     private BluetoothGatt mGatt;
     List<BluetoothGattService> services;
+    BluetoothGattService helius;
+    BluetoothGatt bluetoothGatt;
+    List<BluetoothGattCharacteristic> heliusChars;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,45 +128,42 @@ public class MainActivity extends AppCompatActivity {
         String macAddress = "98:4F:EE:10:AB:C3";
         bleDevice = rxBleClient.getBleDevice(macAddress);
 
-
-        mLEScanner = mBluetoothAdapter.getBluetoothLeScanner();
         settings = new ScanSettings.Builder()
                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                 .build();
         filters = new ArrayList<ScanFilter>();
-        scanLeDevice(true);
+        //scanLeDevice(true);
         if (device != null)
             connectToDevice(device);
         else {
             device = bleDevice.getBluetoothDevice();
             connectToDevice(device);
         }
+
+        //Loop
+        final Handler handler = new Handler();
+        Runnable task = new Runnable() {
+            @Override
+            public void run() {
+                Log.d("LOOP", "Doing task");
+                if (heliusChars != null) {
+                    for (BluetoothGattCharacteristic c : heliusChars) {
+                        Log.i("VALUE: ", c.getUuid() + "");
+                        if (c.getUuid().toString().charAt(7) < '6')
+                            Log.i("VALUE: ", mGatt.readCharacteristic(c) + "");
+                        mGatt.setCharacteristicNotification(c, true);
+                    }
+                }
+                handler.postDelayed(this, 1000);
+            }
+        };
+        handler.post(task);
     }
 
-    private ScanCallback mLeScanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            super.onScanResult(callbackType, result);
-            Log.d("PRINT", result.toString());
-        }
-    };
 
     public void connectToDevice(BluetoothDevice device) {
         if (mGatt == null) {
             mGatt = device.connectGatt(this, false, gattCallback);
-//            BluetoothGattService service = mGatt.getService(serviceUUID);
-//            List<BluetoothGattCharacteristic> list = service.getCharacteristics();
-//            BluetoothGattCharacteristic cha = list.get(0);
-//            Log.d("FUUCKCKKCKKKC", cha.toString());
-            scanLeDevice(false);// will stop after first device detection
-        }
-    }
-
-    private void scanLeDevice(final boolean enable) {
-        if (enable) {
-            if (Build.VERSION.SDK_INT < 21)
-//                        mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                mBluetoothAdapter.getBluetoothLeScanner().startScan(mLeScanCallback);
         }
     }
 
@@ -179,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("gattCallback", "STATE_CONNECTED");
                     gatt.discoverServices();
                     Log.d("FUUCKCKKCKKKC", gatt.getDevice().getName());
+                    bluetoothGatt = gatt;
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
                     Log.e("gattCallback", "STATE_DISCONNECTED");
@@ -192,24 +190,29 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             List<BluetoothGattService> services = gatt.getServices();
-            Log.i("onServicesDiscovered", services.toString());
-            gatt.readCharacteristic(services.get(2).getCharacteristics().get(5));
+            helius = services.get(2);
+            heliusChars = helius.getCharacteristics();
+            Log.i("onServicesDiscovered", heliusChars.toString());
+            gatt.readCharacteristic(heliusChars.get(0));
         }
 
         @Override
-        public void onCharacteristicRead(BluetoothGatt gatt,
-                                         BluetoothGattCharacteristic
-                                                 characteristic, int status) {
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.i("onCharacteristicRead", characteristic.getUuid().toString());
-            Log.i("onCharacteristicValue", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8,0) + "");
-            gatt.readDescriptor(characteristic.getDescriptors().get(0));
+            Log.i("onCharacteristicValue", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
+            // gatt.readDescriptor(characteristic.getDescriptors().get(0));
             //gatt.disconnect();
         }
+
         @Override
-        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
-                                     int status) {
+        public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
             Log.i("onDescriptorRead", descriptor.getUuid().toString());
             Log.i("onDescriptorValue", descriptor.getValue().toString());
+        }
+
+        @Override
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            Log.i("onCharacteristicChange", characteristic.getUuid().toString() + "CHANGED");
         }
     };
 }

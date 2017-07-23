@@ -170,8 +170,9 @@ bool search()
      */
     Serial.println("\n***\n*** Error: no power detected. Initiating low power "
         "protocol\n***");
-    pan_speed(STOP_PAN);
-    return true;
+   // pan_speed(STOP_PAN);
+    //return true;
+    return false;
 }
 
 void track()

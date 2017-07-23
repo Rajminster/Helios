@@ -172,7 +172,7 @@ void run(bool bluetooth)
         if (!sleeping && times_low >= LOW_TIMES) {
             /* Move motor only once */
             turn_east(); // face direction of sunrise
-            sleeping = true;
+           // sleeping = true;
         }
 
         /* If The Sun wasn't found or it's night time, only sleep */
