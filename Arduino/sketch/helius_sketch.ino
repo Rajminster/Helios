@@ -16,8 +16,8 @@ BLEUnsignedCharCharacteristic se_ldr_char(
     "6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEUnsignedShortCharacteristic energy_char(
     "6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
-BLEUnsignedCharCharacteristic power_char(
-    "6E400007-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
+BLEUnsignedCharCharacteristic power_char("6E400007-B5A3-F393-E0A9-E50E24DCCA9E",
+    BLERead | BLEWrite | BLENotify);
 BLEUnsignedCharCharacteristic search_char(
     "6E400008-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 
@@ -98,6 +98,7 @@ void update_readings(int16_t* readings, float energy_new)
     }
 
     /* Update energy reading if necessary */
+    energy_new = read_power();
     if (energy != energy_new) {
         Serial.print("\n***\n*** Updating energy reading to ");
         Serial.print(energy_new);
@@ -172,7 +173,7 @@ void run(bool bluetooth)
         if (!sleeping && times_low >= LOW_TIMES) {
             /* Move motor only once */
             turn_east(); // face direction of sunrise
-           // sleeping = true;
+            //sleeping = true;
         }
 
         /* If The Sun wasn't found or it's night time, only sleep */
