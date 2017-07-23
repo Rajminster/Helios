@@ -79,10 +79,9 @@ int16_t read_ldr(sensor ldr)
 //    Serial.print(ldr);
 //    Serial.print(" LDR: ");
 //    Serial.print(reading);
-    Serial.println("\n***");
+      Serial.println("\n***");
       Serial.println(pan.attached());
       Serial.println(tilt.attached());
-      exit(1);
     return reading;
 }
 
