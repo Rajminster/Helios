@@ -214,16 +214,22 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     if (characteristic.getUuid().toString().charAt(7) == '2')
-                        ldr0Button.setText(Math.round(Math.random() * 100) + "%");
+//                        ldr0Button.setText(Math.round(Math.random() * 100) + "%");
+                        ldr0Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     if (characteristic.getUuid().toString().charAt(7) == '3')
-                        ldr1Button.setText(Math.round(Math.random() * 100) + "%");
+//                        ldr1Button.setText(Math.round(Math.random() * 100) + "%");
+                        ldr1Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     if (characteristic.getUuid().toString().charAt(7) == '4')
-                        ldr2Button.setText(Math.round(Math.random() * 100) + "%");
+//                        ldr2Button.setText(Math.round(Math.random() * 100) + "%");
+                        ldr2Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     if (characteristic.getUuid().toString().charAt(7) == '5')
-                        ldr3Button.setText(Math.round(Math.random() * 100) + "%");
+//                        ldr3Button.setText(Math.round(Math.random() * 100) + "%");
+                        ldr3Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     if (characteristic.getUuid().toString().charAt(7) == '7') {
-                        powerText.setText(Math.round(Math.random() * 100) + "%");
-                        powerBar.setProgress((int)Math.round(Math.random() * 100));
+//                        powerText.setText(Math.round(Math.random() * 100) + "%");
+                        powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8
+                                , 0) + "");
+                        powerBar.setProgress(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
                     }
                 }
             });

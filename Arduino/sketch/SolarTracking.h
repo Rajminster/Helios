@@ -78,15 +78,15 @@
 #define SolarTracking_h
 
 /* DEFINES */
-#define SEARCH_TOL 500 // higher tolerance for initially finding The Sun
-#define LOW_READ   350 // LDR reading which is considered low
+#define SEARCH_TOL 100 // higher tolerance for initially finding The Sun
+#define LOW_READ   50 // LDR reading which is considered low
 #define TRACK_DIFF  50 // reading difference tolerance when tracking The Sun
 #define LOW_TIMES   10 // assume night when all LDRs read low this many times
 #define NUM_LDR      4 // number of LDR sensors
 #define NUM_LOOP     2 // number of loops to make when searching for The Sun
 
 #define STOP_PAN   90 // stop pan motor movement
-#define SEARCH     20 // search pan motor speed
+#define SEARCH     85 // search pan motor speed
 #define TRACK_CW   70 // clockwise track pan motor speed
 #define TRACK_CCW 110 // counterclockwise track pan motor speed
 #define MAX_PAN   180 // max pan speed

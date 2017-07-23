@@ -32,8 +32,8 @@ void initialize()
     Serial.println("\n***\n*** Initializing pin connections\n***");
 
     /* Setup digital pins for Servo motors */
-    pan.attach(9);
-    tilt.attach(10);
+    pan.attach(12);
+    tilt.attach(13);
 
     /* Move motors to their starting positions */
     Serial.println("\n***\n*** Motors approaching initial positions\n***");
@@ -75,11 +75,13 @@ int16_t read_ldr(sensor ldr)
 {
     int16_t reading = analogRead(ldr);
     delay(1); // delay to ensure read is complete
-    Serial.print("\n***\n*** Reading from ");
-    Serial.print(ldr);
-    Serial.print(" LDR: ");
-    Serial.print(reading);
+//    Serial.print("\n***\n*** Reading from ");
+//    Serial.print(ldr);
+//    Serial.print(" LDR: ");
+//    Serial.print(reading);
     Serial.println("\n***");
+      Serial.println(pan.attached());
+      Serial.println(tilt.attached());
     return reading;
 }
 
