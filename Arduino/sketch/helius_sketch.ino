@@ -96,9 +96,11 @@ void update_readings(int16_t* readings, float energy_new)
             old_readings[i] = curr_reading;
         }
     }
+    
+    Serial.print("ENERGY READ: ");
+    Serial.println(energy_new);
 
     /* Update energy reading if necessary */
-    energy_new = read_power();
     if (energy != energy_new) {
         Serial.print("\n***\n*** Updating energy reading to ");
         Serial.print(energy_new);
