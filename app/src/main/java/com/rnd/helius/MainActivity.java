@@ -164,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final BluetoothGattCallback gattCallback = new BluetoothGattCallback() {
         List<BluetoothGattCharacteristic> chars = new ArrayList<>();
+
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             Log.i("onConnectionStateChange", "Status: " + status);
@@ -208,9 +209,29 @@ public class MainActivity extends AppCompatActivity {
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             Log.i("onCharacteristicRead", characteristic.getUuid().toString());
             Log.i("onCharacteristicValue", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    if (characteristic.getUuid().toString().charAt(7) == '2')
+                        ldr0Button.setText(Math.round(Math.random() * 100) + "%");
+                    if (characteristic.getUuid().toString().charAt(7) == '3')
+                        ldr1Button.setText(Math.round(Math.random() * 100) + "%");
+                    if (characteristic.getUuid().toString().charAt(7) == '4')
+                        ldr2Button.setText(Math.round(Math.random() * 100) + "%");
+                    if (characteristic.getUuid().toString().charAt(7) == '5')
+                        ldr3Button.setText(Math.round(Math.random() * 100) + "%");
+                    if (characteristic.getUuid().toString().charAt(7) == '7') {
+                        powerText.setText(Math.round(Math.random() * 100) + "%");
+                        powerBar.setProgress((int)Math.round(Math.random() * 100));
+                    }
+                }
+            });
+
+
             // gatt.readDescriptor(characteristic.getDescriptors().get(0));
             //gatt.disconnect();
-           chars.add(chars.remove(0));
+            chars.add(chars.remove(0));
 
 
             if (chars.size() > 0) {

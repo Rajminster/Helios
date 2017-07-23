@@ -189,8 +189,8 @@
             android:layout_height="151dp"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
-            android:text="50"
-            android:textSize="92sp" />
+            android:text="50%"
+            android:textSize="66sp" />
 
         <Button
             android:id="@+id/ldr1"
@@ -199,8 +199,8 @@
             android:layout_height="100dp"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
-            android:text="100"
-            android:textSize="92sp" />
+            android:text="100%"
+            android:textSize="66sp" />
 
         <Button
             android:id="@+id/ldr2"
@@ -209,8 +209,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
-            android:text="50"
-            android:textSize="92sp" />
+            android:text="50%"
+            android:textSize="66sp" />
 
         <Button
             android:id="@+id/ldr3"
@@ -219,8 +219,8 @@
             android:layout_height="104dp"
             android:layout_gravity="fill_vertical|fill_horizontal"
             android:gravity="center"
-            android:text="100"
-            android:textSize="92sp" />
+            android:text="100%"
+            android:textSize="66sp" />
 
     </GridLayout>
 
