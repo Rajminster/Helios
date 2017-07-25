@@ -240,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
                         if (power) {
                             characteristic.setValue(1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                             gatt.writeCharacteristic(characteristic);
+                            power = false;
                         }
                         Log.i("Power", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     }
