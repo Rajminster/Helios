@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     BluetoothGattService helius;
     BluetoothGatt bluetoothGatt;
     List<BluetoothGattCharacteristic> heliusChars;
+    boolean power = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,13 +85,19 @@ public class MainActivity extends AppCompatActivity {
         powerButton = (Button) findViewById(R.id.powerButton);
         powerButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                power = true;
+                if (mGatt != null) {
+//                    heliusChars.get(5).setValue(1,BluetoothGattCharacteristic.FORMAT_UINT8,0);
+                    Log.i("POWER", "Set Value " + power);
+
+                }
             }
         });
         findButton = (Button) findViewById(R.id.findButton);
         findButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
+//                startActivity(intent)
             }
         });
         helpButton = (Button) findViewById(R.id.helpButton);
@@ -190,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
             helius = services.get(2);
             heliusChars = helius.getCharacteristics();
             chars = helius.getCharacteristics();
-            Log.i("onServicesDiscovered", heliusChars.toString());
+            Log.i("onServicesDiscovered", heliusChars.get(5).getUuid().toString());
             //gatt.readCharacteristic(heliusChars.get(0));
             for (BluetoothGattCharacteristic c : heliusChars)
                 gatt.setCharacteristicNotification(c, true);
@@ -207,8 +214,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-            Log.i("onCharacteristicRead", characteristic.getUuid().toString());
-            Log.i("onCharacteristicValue", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
+//            Log.i("onCharacteristicRead", characteristic.getUuid().toString());
+//            Log.i("onCharacteristicValue", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -230,6 +237,11 @@ public class MainActivity extends AppCompatActivity {
                         powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8
                                 , 0) + "");
                         powerBar.setProgress(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
+                        if (power) {
+                            characteristic.setValue(1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                            gatt.writeCharacteristic(characteristic);
+                        }
+                        Log.i("Power", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     }
                 }
             });
@@ -245,6 +257,11 @@ public class MainActivity extends AppCompatActivity {
             } else {
 
             }
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            Log.i("onCharacteristicWrite", characteristic.getUuid().toString());
         }
 
         @Override
