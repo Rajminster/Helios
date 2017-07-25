@@ -14,6 +14,7 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -74,12 +75,16 @@ public class MainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ldr0Button = (Button) findViewById(R.id.ldr0);
         ldr0Button.setText((int) (Math.random() * 100) + "");
+        ldr0Button.setEnabled(false);
         ldr1Button = (Button) findViewById(R.id.ldr1);
         ldr1Button.setText((int) (Math.random() * 100) + "");
+        ldr1Button.setEnabled(false);
         ldr2Button = (Button) findViewById(R.id.ldr2);
         ldr2Button.setText((int) (Math.random() * 100) + "");
+        ldr2Button.setEnabled(false);
         ldr3Button = (Button) findViewById(R.id.ldr3);
         ldr3Button.setText((int) (Math.random() * 100) + "");
+        ldr3Button.setEnabled(false);
         powerBar = (ProgressBar) findViewById(R.id.powerBar);
         powerBar.setProgress((int) (Math.random() * 100));
         powerText = (TextView) findViewById(R.id.powerText);
@@ -90,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
                 if (mGatt != null) {
 //                    heliusChars.get(5).setValue(1,BluetoothGattCharacteristic.FORMAT_UINT8,0);
                     Log.i("POWER", "Set Value " + power);
-
                 }
             }
         });
@@ -209,7 +213,16 @@ public class MainActivity extends AppCompatActivity {
             for (BluetoothGattCharacteristic c : heliusChars)
                 gatt.setCharacteristicNotification(c, true);
             requestCharacteristics(gatt);
-            findButton.setVisibility(View.GONE);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    findButton.setVisibility(View.GONE);
+                    ldr0Button.setEnabled(true);
+                    ldr1Button.setEnabled(true);
+                    ldr2Button.setEnabled(true);
+                    ldr3Button.setEnabled(true);
+                }
+            });
         }
 
         public void requestCharacteristics(BluetoothGatt gatt) {
