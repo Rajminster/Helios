@@ -261,7 +261,7 @@ public class MainActivity extends AppCompatActivity {
                         ldr3Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     if (characteristic.getUuid().toString().charAt(7) == '6') {
 //                        powerText.setText(Math.round(Math.random() * 100) + "%");
-                        powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
+                        powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "W");
                         powerBar.setProgress(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
                     }
                     if (characteristic.getUuid().toString().charAt(7) == '7') {
