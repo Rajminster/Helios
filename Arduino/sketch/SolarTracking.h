@@ -83,10 +83,10 @@
 #define TRACK_DIFF  50 // reading difference tolerance when tracking The Sun
 #define LOW_TIMES   10 // assume night when all LDRs read low this many times
 #define NUM_LDR      4 // number of LDR sensors
-#define NUM_LOOP     2 // number of loops to make when searching for The Sun
+#define NUM_LOOP     1 // number of loops to make when searching for The Sun
 
 #define STOP_PAN   90 // stop pan motor movement
-#define SEARCH     20 // search pan motor speed
+#define SEARCH     85 // search pan motor speed
 #define TRACK_CW   70 // clockwise track pan motor speed
 #define TRACK_CCW 110 // counterclockwise track pan motor speed
 #define MAX_PAN   180 // max pan speed
@@ -117,7 +117,7 @@ typedef unsigned int u_int32_t; // 32-bit unsigned integer [0 - 4294967295]
 /* CONSTANTS */
 const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
 const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
-const u_int8_t DC_PIN = 5; // analog pin for the DC sensor
+const u_int8_t DC_PIN = 4; // analog pin for the DC sensor
 const double VREF = 5.0; // reference voltage
 
 /* PROTOTYPES */
