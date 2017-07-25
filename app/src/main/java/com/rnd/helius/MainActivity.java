@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
+    Button searchButton;
     Button findButton;
     Button ldr0Button;
     Button ldr1Button;
@@ -93,11 +94,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        findButton = (Button) findViewById(R.id.findButton);
-        findButton.setOnClickListener(new View.OnClickListener() {
+        searchButton = (Button) findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 //                Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
 //                startActivity(intent)
+            }
+        });
+        findButton = (Button) findViewById(R.id.findButton);
+        findButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
             }
         });
         helpButton = (Button) findViewById(R.id.helpButton);
@@ -202,6 +209,7 @@ public class MainActivity extends AppCompatActivity {
             for (BluetoothGattCharacteristic c : heliusChars)
                 gatt.setCharacteristicNotification(c, true);
             requestCharacteristics(gatt);
+            findButton.setVisibility(View.GONE);
         }
 
         public void requestCharacteristics(BluetoothGatt gatt) {
