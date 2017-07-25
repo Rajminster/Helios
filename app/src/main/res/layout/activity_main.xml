@@ -21,7 +21,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:fadeScrollbars="false"
-        android:text="Find Sun"
+        android:text="Find Helius"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         tools:layout_editor_absoluteY="1dp" />
