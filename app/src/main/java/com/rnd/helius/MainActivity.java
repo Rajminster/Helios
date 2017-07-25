@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     BluetoothGatt bluetoothGatt;
     List<BluetoothGattCharacteristic> heliusChars;
     boolean power = false;
+    boolean search = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,6 +104,11 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
 //                startActivity(intent)
+                search = true;
+                if (mGatt != null) {
+//                    heliusChars.get(5).setValue(1,BluetoothGattCharacteristic.FORMAT_UINT8,0);
+                    Log.i("Search", "Search " + power);
+                }
             }
         });
         findButton = (Button) findViewById(R.id.findButton);
@@ -253,17 +259,26 @@ public class MainActivity extends AppCompatActivity {
                     if (characteristic.getUuid().toString().charAt(7) == '5')
 //                        ldr3Button.setText(Math.round(Math.random() * 100) + "%");
                         ldr3Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
-                    if (characteristic.getUuid().toString().charAt(7) == '7') {
+                    if (characteristic.getUuid().toString().charAt(7) == '6') {
 //                        powerText.setText(Math.round(Math.random() * 100) + "%");
-                        powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8
-                                , 0) + "");
+                        powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                         powerBar.setProgress(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
+                    }
+                    if (characteristic.getUuid().toString().charAt(7) == '7') {
                         if (power) {
                             characteristic.setValue(1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                             gatt.writeCharacteristic(characteristic);
                             power = false;
                         }
                         Log.i("Power", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
+                    }
+                    if (characteristic.getUuid().toString().charAt(7) == '8') {
+                        if (search) {
+                            characteristic.setValue(1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+                            gatt.writeCharacteristic(characteristic);
+                            search = false;
+                        }
+                        Log.i("Seach", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     }
                 }
             });
