@@ -117,10 +117,10 @@ void update_readings(int16_t* readings)
         }
     }
 
-    /* Update energy reading if necessary */
-    if (energy != VREF * avg_power / num_readings) {
+    /* Update energy (in Watt hours) reading if necessary */
+    if (energy != VREF * avg_power / num_readings / SEC_IN_HOUR) {
         Serial.print("\n***\n*** Updating energy reading to ");
-        energy = VREF * avg_power / num_readings;
+        energy = VREF * avg_power / num_readings / SEC_IN_HOUR;
         Serial.print(energy);
         Serial.println("\n***");
         energy_char.setValue(energy);
@@ -179,10 +179,6 @@ void run(bool bluetooth)
             if (power_char.value()) {
                 power_char.setValue(0);
                 off = true;
-            }
-            /* Update Watt hour reading when necessary */
-            if (!(num_readings % SEC_IN_HOUR)) {
-                energy_char.write(avg_power / SEC_IN_HOUR); // write Watt hours
             }
         }
 
