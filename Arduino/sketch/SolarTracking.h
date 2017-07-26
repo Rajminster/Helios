@@ -41,18 +41,19 @@
  * track The Sun in 360 degrees of continuous, rotational motion and 180 degrees
  * of tilting motion.
  *
- * Motion of the pane is controlled in two dimensions through two different
+ * Motion of the pane is controlled in two dimensions through two 180 degree
  * Servo motors. The entire pane containing the LDRs and solar panels is rotated
- * (or panned) through a 360 degree continuous motion Servo motor which is
- * defined in SolarTracking.cpp as pan. The pane itself where the LDRs are
- * located is tilted by another Servo motor known as tilt. This motor can only
- * go from 0 degrees to 180 degrees. Values written to the pan motor are speed
- * of the motor which range from 0 to 180; similarly, values written to the tilt
- * motor are the angle which the motor should face which will range from 0 to
- * 180 degrees. For pan, the closer the speed is to 90, the slower the motion of
- * panning. The closer the value is to 0 or 180, the faster the motor will move.
- * If the value is less than 90, the motor will move clockwise; if the value is
- * greater than 90, the motor will move counterclockwise.
+ * (or panned) using a 180 degree Servo motor which is defined in
+ * SolarTracking.cpp as pan. The pane itself where the LDRs are located is
+ * tilted by another Servo motor known as tilt. This motor can only go from 0
+ * degrees to 180 degrees. Values written to both Servo motors are the angle
+ * which the motor should face which will range from 0 to 180 degrees. 360
+ * panning motion is achieved as follows: if the angle of panning is between 0
+ * and 180 degrees, write the angle as normal; if the angle is greater than 180
+ * degrees, then the pane is flipped and 180 - the angle is written to the pan
+ * motor. By flipping the pane and writing 180 - the angle, the pane containing
+ * the LDRs will now face the opposite direction it used to and will point in
+ * the direction whose angle would be greater than 180 degrees.
  *
  * Whenever all four of the device's LDRs measure a consistently low reading or
  * if The Sun wasn't found on its initial search, the device will enter a deep
@@ -78,22 +79,16 @@
 #define SolarTracking_h
 
 /* DEFINES */
-#define SEARCH_TOL 100 // higher tolerance for initially finding The Sun
-#define LOW_READ   50 // LDR reading which is considered low
+#define SEARCH_TOL 500 // higher tolerance for initially finding The Sun
+#define LOW_READ   350 // LDR reading which is considered low
 #define TRACK_DIFF  50 // reading difference tolerance when tracking The Sun
 #define LOW_TIMES   10 // assume night when all LDRs read low this many times
 #define NUM_LDR      4 // number of LDR sensors
-#define NUM_LOOP     1 // number of loops to make when searching for The Sun
-
-#define STOP_PAN   90 // stop pan motor movement
-#define SEARCH     85 // search pan motor speed
-#define TRACK_CW   70 // clockwise track pan motor speed
-#define TRACK_CCW 110 // counterclockwise track pan motor speed
-#define MAX_PAN   180 // max pan speed
-#define DA        120 // change in angle per second with SEARCH pan motor speed
+#define NUM_LOOP     2 // number of loops to make when searching for The Sun
 
 #define READ_DELAY   1000 // millisecond delay between LDR readings
-#define WRITE_DELAY  2000 // millisecond delay for Servo motor movement
+#define LARGE_ANGLE  3000 // millisecond delay for large Servo motor movement
+#define SMALL_ANGLE  1000 // millisecond delay for small Servo motor movement
 #define SLEEP_ON     3000 // millisecond duration for sleep when device is on
 #define SLEEP_OFF   10000 // millisecond duration for sleep when device is off
 
@@ -116,7 +111,9 @@ typedef unsigned int u_int32_t; // 32-bit unsigned integer [0 - 4294967295]
 
 /* CONSTANTS */
 const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
-const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
+const u_int8_t PAN_INIT = 0; // pan Servo motor initial angle
+const u_int8_t TILT_MAX = 180; // max angle for tilt Servo motor
+const u_int16_t PAN_MAX = 360; // max angle for pan Servo motor
 const u_int8_t DC_PIN = 4; // analog pin for the DC sensor
 const double VREF = 5.0; // reference voltage
 
@@ -134,8 +131,7 @@ const double VREF = 5.0; // reference voltage
  * After the write digital pins have been attached, write the correct starting
  * angle for the tilt motor and ensure the pan motor is not moving. For the tilt
  * Servo motor, this angle will be 45 degrees; for the pan Servo motor, the
- * initial speed will be 90 which prevents any continuous motor movement. Wait
- * for WRITE_DELAY milliseconds for the tilt motor to finish moving.
+ * initial angle will be 0.
  */
 void initialize();
 
@@ -165,12 +161,6 @@ void sleep(u_int32_t duration);
  * sunlight, the LDRs will all measure a low reading after a certain period of
  * time. This library sees these conditions as reason enough to turn the device
  * around in order to face the approximate direction of sunrise.
- *
- * In order to turn aruond, this method sets the speed of the continuous motor
- * to the speed used in the search method. Knowing the speed of the motor, the
- * change in angle which the device is facing with time is known. With this
- * information, this method waits for the device to simply have a change in
- * angle faced of 180 degrees. This angle should be the direction of sunrise.
  */
 void turn_east();
 
@@ -238,19 +228,17 @@ int16_t _get_dh();
 int16_t _get_dv();
 
 /*
- * Search for The Sun or a significantly intense source of light, using a
- * constant, clockwise speed for the pan Servo motor.
+ * Search for The Sun or a significantly intense source of light by panning
+ * the device NUM_LOOP times and looking for a significantly high LDR reading.
  *
  * Tolerance for this method is much higher in order to be sure that The Sun is
  * what's being found.
  *
  * A temporary angle which represents the direction the device will face will
- * start at degree 0, and as the pan Servo begins to move clockwise at a
- * constant speed, it will search for a point where there is a difference in
- * either Northern labeled LDRs and Southern labeled LDRs or Western labeled
- * LDRs and Eastern labeled LDRs which has magnitude greater than SEARCH_TOL.
- * Once this point is reached, the device switches to tracking The Sun with more
- * precise pan and tilt Servo motor movement.
+ * start at degree 0, and as the pan Servo begins to move clockwise. It will
+ * search for a point where at least one of the LDR readings is significantly
+ * high (> SEARCH_TOL). Once this point is reached, the device will begin to
+ * track this light source.
  *
  * If the device makes NUM_LOOP full loops without finding a significantly
  * bright source of light, the device will be placed in low power sleep mode.
@@ -260,8 +248,6 @@ int16_t _get_dv();
  * device should be sleeping or actively tracking The Sun. If a power source is
  * not found, then this method will return true to indicate that the device
  * should go immediately to sleep mode in the sketch loop method.
- *
- * At the end of this method, the pan Servo motor will stop moving.
  */
 bool search();
 
@@ -279,7 +265,7 @@ bool search();
  * If the Northern labeled LDRs receive more sunlight, then the angle of pane
  * tilt should increase; otherwise it should decrease.
  *
- * When tilting or rotating the device, the tilt_pane or pan_speed methods
+ * When tilting or rotating the device, the tilt_pane or pan_pane methods
  * (see below) are used. A low value is used for the pan rotational movement if
  * required, and the tilt_angle degree is changed minutely because this small
  * change in angle is all that is needed when tracking The Sun.
@@ -292,18 +278,13 @@ bool search();
 void track();
 
 /*
- * Pan the entire device at a given speed either clockwise or counterclockwise.
- *
- * This method will set the speed of the continuous Servo motor pan which will
- * allow the motor to continually move in either a clockwise or counterclockwise
- * (depending on the value given) motion.
- *
- * If the value for the speed parameter is 0, the motor will spin clockwise at
- * the fastest speed allowed by the motor. If the value is 90, the motor will
- * not move. The closer the value is to 90, the slower the motor will move. If
- * the value is greater than 90, the motor will spin counterclockwise.
+ * Updates the angle of the pan Servo motor for the entire pane.
+ * 
+ * When combined with the 180 degree tilt Servo motor, this device can achieve
+ * full 360 degree panning motion. With 360 degree motion, this device can
+ * successfully track The Sun on whatever path it takes.
  */
-void pan_speed(u_int8_t speed);
+void pan_pane(u_int16_t angle);
 
 /*
  * Updates the angle of tilt for the pane containing the LDRs and solar panels
