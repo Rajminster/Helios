@@ -98,13 +98,13 @@ void update_readings(int16_t* readings)
     }
 
     /* Update energy reading if necessary */
-    if (energy != VREF * avg_power / num_readings) {
-        Serial.print("\n***\n*** Updating energy reading to ");
-        energy = VREF * avg_power / num_readings;
-        Serial.print(energy);
-        Serial.println("\n***");
-        energy_char.setValue(energy);
-    }
+//    if (energy != VREF * avg_power / num_readings) {
+//        Serial.print("\n***\n*** Updating energy reading to ");
+//        energy = VREF * avg_power / num_readings;
+//        Serial.print(energy);
+//        Serial.println("\n***");
+//        energy_char.setValue(energy);
+//    }
 }
 
 /*
@@ -150,7 +150,7 @@ void run(bool bluetooth)
 
         /* Check if button for power or initiating a search were pressed */
         if (bluetooth) {
-            update_readings(ldr_all, read_power());
+            update_readings(ldr_all);
             if (search_char.value()) {
                 search_char.setValue(0);
                 sleeping = search();
