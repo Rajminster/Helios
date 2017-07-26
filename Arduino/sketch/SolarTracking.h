@@ -11,7 +11,7 @@
  * and displayed.
  *
  * This library may also apply to Arduino Uno; however, the Arduino sketch
- * helius_sketch.ino only applies to the Arduino 101 as it uses the 101's built
+ * helios_sketch.ino only applies to the Arduino 101 as it uses the 101's built
  * in Bluetooth connectivity.
  *
  * This library is used whenever communication between the Arduino 101 and LDRs
@@ -86,9 +86,10 @@
 #define NUM_LDR      4 // number of LDR sensors
 #define NUM_LOOP     2 // number of loops to make when searching for The Sun
 
+#define DA             10 // amount of degrees to change in search method
 #define READ_DELAY   1000 // millisecond delay between LDR readings
-#define LARGE_ANGLE  3000 // millisecond delay for large Servo motor movement
-#define SMALL_ANGLE  1000 // millisecond delay for small Servo motor movement
+#define LARGE_ANGLE  1000 // millisecond delay for large Servo motor movement
+#define SMALL_ANGLE   500 // millisecond delay for small Servo motor movement
 #define SLEEP_ON     3000 // millisecond duration for sleep when device is on
 #define SLEEP_OFF   10000 // millisecond duration for sleep when device is off
 
@@ -279,7 +280,7 @@ void track();
 
 /*
  * Updates the angle of the pan Servo motor for the entire pane.
- * 
+ *
  * When combined with the 180 degree tilt Servo motor, this device can achieve
  * full 360 degree panning motion. With 360 degree motion, this device can
  * successfully track The Sun on whatever path it takes.
