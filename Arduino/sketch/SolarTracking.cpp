@@ -7,10 +7,13 @@
 #include "SolarTracking.h"
 
 /*
- * Servo motor for panning the entire panel system, must be able to pan
- * in 360 degrees
+ * Servo motor for panning the entire panel system. This motor will move in 180
+ * degrees
  */
 Servo pan;
+
+/* Current angle for the pan Servo motor */
+u_int16_t pan_angle;
 
 /*
  * Servo motor for tilting the entire pane where the panels and LDRs are
@@ -20,7 +23,7 @@ Servo pan;
  */
 Servo tilt;
 
-/* Current angle for the pane Servo motor */
+/* Current angle for the tilt Servo motor */
 u_int8_t tilt_angle;
 
 void initialize()
@@ -37,9 +40,9 @@ void initialize()
 
     /* Move motors to their starting positions */
     Serial.println("\n***\n*** Motors approaching initial positions\n***");
-    pan_speed(93);
+    pan_pane(PAN_INIT); // make sure motor is at 0 degrees
     tilt_pane(TILT_INIT); // 45 degrees to prevent pane from shading all LDRs
-    delay(WRITE_DELAY); // wait for tilt to finish moving
+    delay(LARGE_ANGLE); // wait for tilt to finish moving
 }
 
 void sleep(u_int32_t duration)
@@ -56,29 +59,21 @@ void sleep(u_int32_t duration)
 
 void turn_east()
 {
-    u_int8_t temp_angle = 0; // temp to know when a half rotation has been made
-
     /* Turn pane around to face direction of sunrise */
     Serial.println("\n***\n*** No power detected, moving panels East\n***");
     tilt_pane(TILT_INIT);
-
-    /* Pan 180 degrees */
-    //pan_speed(SEARCH);
-    while (temp_angle < 180) {
-        temp_angle += DA;
-        delay(READ_DELAY);
-    }
-    pan_speed(STOP_PAN);
+    pan_pane(pan_angle + 180);
+    delay(LARGE_ANGLE);
 }
 
 int16_t read_ldr(sensor ldr)
 {
     int16_t reading = analogRead(ldr);
     delay(1); // delay to ensure read is complete
-//    Serial.print("\n***\n*** Reading from ");
-//    Serial.print(ldr);
-//    Serial.print(" LDR: ");
-//    Serial.print(reading);
+    Serial.print("\n***\n*** Reading from ");
+    Serial.print(ldr);
+    Serial.print(" LDR: ");
+    Serial.print(reading);
     Serial.println("\n***");
     return reading;
 }
@@ -139,30 +134,35 @@ int16_t _get_dv()
 
 bool search()
 {
+    int i;
     int16_t* readings;
     u_int16_t temp_angle = 0; // temp to know when a full rotation has occurred
     /* Make sure pane is tilted at a 45 degree */
     if (tilt_angle != TILT_INIT) {
         tilt_pane(TILT_INIT);
-        delay(WRITE_DELAY);
+        delay(LARGE_ANGLE);
     }
-    pan_speed(93);
 
-    /* Perform NUM_LOOP full loops to search for a significant light source */
+    /* Perform NUM_LOOP loops to search for a significant light source */
     Serial.println("\n***\n*** Initiating search for power source\n***");
-    /* Rotate the device fully NUM_LOOP times */
-    while (temp_angle <= 360 * NUM_LOOP) {
-        readings = read_ldr_all();
-        if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
-            || readings[2] > SEARCH_TOL || readings[3] > SEARCH_TOL) {
-            /* Significant light intensity found; don't sleep */
-            Serial.println("\n*** Power source detected. Initiating light "
-                "tracking protocol\n***");
-            pan_speed(93);
-            return false;
+    for (i = 0; i < NUM_LOOP; i++) {
+        /* Rotate the device fully once */
+        while (temp_angle <= PAN_MAX) {
+            readings = read_ldr_all();
+            Serial.print("\n***\n*** On search ");
+            Serial.print(i);
+            if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
+                || readings[2] > SEARCH_TOL || readings[3] > SEARCH_TOL) {
+                /* Significant light intensity found; don't sleep */
+                Serial.println("\n*** Power source detected. Initiating light "
+                    "tracking protocol\n***");
+                return false;
+            }
+            Serial.println("\n*** No significant power source detected\n***");
+            pan_pane(pan_angle + 5);
+            temp_angle += 5;
         }
-        temp_angle += DA;
-        delay(READ_DELAY);
+        temp_angle = 0;
     }
     /*
      * Sun not found; begin sleeping until Sun appears in front of the LDR pane
@@ -170,9 +170,7 @@ bool search()
      */
     Serial.println("\n***\n*** Error: no power detected. Initiating low power "
         "protocol\n***");
-   // pan_speed(STOP_PAN);
-    //return true;
-    return false;
+    return true;
 }
 
 void track()
@@ -190,9 +188,6 @@ void track()
      * counterclockwise, depending on the sign of dh, in order to more directly
      * face The Sun
      */
-
-    Serial.println("In track");
-     
     if (abs(dh) > TRACK_DIFF) {
         if (dh > 0) {
             /*
@@ -203,8 +198,7 @@ void track()
              * 90 degrees (West and East will be switched) then move in the
              * opposite direction, counterclockwise
              */
-            //pan_speed(tilt_angle <= 90 ? TRACK_CW : TRACK_CCW);
-            pan_speed(93);
+            pan_pane(tilt_angle <= 90 ? pan_angle + 1 : pan_angle - 1);
         } else {
             /*
              * LDRs labeled as East receive more light. In this case, depending
@@ -213,12 +207,8 @@ void track()
              * equal to 90 degrees, then the device should rotate
              * counterclockwise; otherwise it should rotate clockwise
              */
-           // pan_speed(tilt_angle <= 90 ? TRACK_CCW : TRACK_CW);
-           pan_speed(93);
+            pan_pane(tilt_angle <= 90 ? pan_angle - 1 : pan_angle + 1);
         }
-    } else {
-        /* Prevent the pan motor moving from this ideal position */
-        pan_speed(93);
     }
     /*
      * Check if the vertical reading difference exceeds the track tolerance.
@@ -229,20 +219,45 @@ void track()
     if (abs(dv) > TRACK_DIFF) {
         if (dv > 0) {
             /* LDRs labeled as Northern receive more light */
-            tilt_pane(tilt_angle + 1); // increase tilt angle
+            tilt_pane(tilt_angle - 1); // decrease tilt angle
         } else {
             /* LDRs labeled as Southern receive more light */
-            tilt_pane(tilt_angle - 1); // decrease tilt angle
+            tilt_pane(tilt_angle + 1); // increase tilt angle
         }
     }
 }
 
-void pan_speed(u_int8_t speed)
+void pan_pane(u_int16_t angle)
 {
-    /* Make sure speed is within the range 0 to 180 */
-    if (speed <= MAX_PAN) {
-        pan.write(speed);
+    /* Make sure angle is within the range 0 to 360 */
+    angle %= PAN_MAX + 1;
+
+    if (angle > TILT_MAX) {
+        /*
+         * Emulate 360 degree motion by flipping the pane and writing to pan
+         * 180 - angle to make the pane face what would be 180 to 360 degrees
+         */
+        if (pan_angle <= TILT_MAX) {
+            /* Flip pane once */
+            tilt_pane(TILT_MAX - tilt_angle);
+            pan.write(angle - TILT_MAX);
+            delay(LARGE_ANGLE); // give time to flip pane and sweep pan motor
+        } else {
+            pan.write(angle - TILT_MAX);
+            delay(SMALL_ANGLE);
+        }
+    } else {
+        if (pan_angle > TILT_MAX) {
+            /* Flip pane back to normal if needed */
+            tilt_pane(TILT_MAX - tilt_angle);
+            pan.write(angle);
+            delay(LARGE_ANGLE);
+        } else {
+            pan.write(angle);
+            delay(SMALL_ANGLE);
+        }
     }
+    pan_angle = angle;
 }
 
 void tilt_pane(u_int8_t angle)
