@@ -111,7 +111,7 @@ typedef unsigned short u_int16_t; // 16-bit unsigned integer [0 - 65535]
 typedef unsigned int u_int32_t; // 32-bit unsigned integer [0 - 4294967295]
 
 /* CONSTANTS */
-const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
+const u_int8_t TILT_INIT = 135; // tilt Servo motor initial angle
 const u_int8_t PAN_INIT = 0; // pan Servo motor initial angle
 const u_int8_t TILT_MAX = 180; // max angle for tilt Servo motor
 const u_int16_t PAN_MAX = 360; // max angle for pan Servo motor
