@@ -113,8 +113,8 @@ int16_t _get_dh()
     int16_t east_avg = (read_ldr(NE) + read_ldr(SE)) / 2;
 
     /*
-     * Find difference in Western and Eastern readings to determine if pan
-     * Servo motor should change angle
+     * Find difference in Western and Eastern readings to determine if pan Servo
+     * motor should change angle
      */
     return west_avg - east_avg;
 }
@@ -152,15 +152,15 @@ bool search()
             Serial.print("\n***\n*** On search ");
             Serial.print(i);
             if (readings[0] > SEARCH_TOL || readings[1] > SEARCH_TOL
-                || readings[2] > SEARCH_TOL || readings[3] > SEARCH_TOL) {
+            || readings[2] > SEARCH_TOL || readings[3] > SEARCH_TOL) {
                 /* Significant light intensity found; don't sleep */
                 Serial.println("\n*** Power source detected. Initiating light "
-                    "tracking protocol\n***");
+                "tracking protocol\n***");
                 return false;
             }
             Serial.println("\n*** No significant power source detected\n***");
-            pan_pane(pan_angle + 5);
-            temp_angle += 5;
+            pan_pane(pan_angle + DA);
+            temp_angle += DA;
         }
         temp_angle = 0;
     }
