@@ -45,7 +45,7 @@ u_int16_t old_readings[NUM_LDR] = { nw, ne, sw, se };
  * SolarTracking.h, this library will assume that it is sunset and will turn
  * around the pane and will put the Arduino 101 into a low power sleep state
  */
-u_int8_t times_low = 0;
+u_int8_t times_low;
 
 /*
  * Boolean flag which signals to the Arduino 101 that it should enter a brief
@@ -77,7 +77,7 @@ bool off;
  * every DELAY milliseconds. If there is a change in value, any peripheral
  * device connected to this Service via Bluetooth will be notified.
  */
-void update_readings(int16_t* readings, float energy_new)
+void update_readings(int16_t* readings)
 {
     int i;
     u_int8_t curr_reading;
@@ -96,17 +96,14 @@ void update_readings(int16_t* readings, float energy_new)
             old_readings[i] = curr_reading;
         }
     }
-    
-    Serial.print("ENERGY READ: ");
-    Serial.println(energy_new);
 
     /* Update energy reading if necessary */
-    if (energy != energy_new) {
+    if (energy != VREF * avg_power / num_readings) {
         Serial.print("\n***\n*** Updating energy reading to ");
-        Serial.print(energy_new);
+        energy = VREF * avg_power / num_readings;
+        Serial.print(energy);
         Serial.println("\n***");
-        energy_char.setValue(energy_new);
-        energy = energy_new;
+        energy_char.setValue(energy);
     }
 }
 
@@ -162,7 +159,6 @@ void run(bool bluetooth)
             if (power_char.value()) {
                 power_char.setValue(0);
                 off = true;
-                pan_speed(STOP_PAN); // make sure motor isn't moving
             }
         }
 
@@ -175,7 +171,7 @@ void run(bool bluetooth)
         if (!sleeping && times_low >= LOW_TIMES) {
             /* Move motor only once */
             turn_east(); // face direction of sunrise
-            //sleeping = true;
+            sleeping = true;
         }
 
         /* If The Sun wasn't found or it's night time, only sleep */
@@ -229,6 +225,7 @@ void setup()
 
     /* Search for The Sun, sleep if sun wasn't found; track otherwise */
     off = false;
+    times_low = 0;
     sleeping = search();
 
     blep.begin();
