@@ -117,7 +117,7 @@ typedef unsigned int u_int32_t; // 32-bit unsigned integer [0 - 4294967295]
 /* CONSTANTS */
 const u_int8_t TILT_INIT = 45; // tilt Servo motor initial angle
 const u_int8_t TILT_MAX = 180; // tilt Servo motor upper bound
-const u_int8_t DC_PIN = 5; // analog pin for the DC sensor
+const u_int8_t DC_PIN = 4; // analog pin for the DC sensor
 const double VREF = 5.0; // reference voltage
 
 /* PROTOTYPES */
