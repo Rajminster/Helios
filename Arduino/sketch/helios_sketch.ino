@@ -2,6 +2,10 @@
 
 #include "SolarTracking.h"
 
+#define SEC_LOW     1     // where to begin the denominator for average
+#define SEC_HIGH    86400 // number of seconds in a day
+#define SEC_IN_HOUR 360   // number of seconds in an hour
+
 BLEPeripheral blep;
 BLEService st = BLEService("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
 
@@ -14,7 +18,7 @@ BLEUnsignedCharCharacteristic sw_ldr_char(
     "6E400004-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEUnsignedCharCharacteristic se_ldr_char(
     "6E400005-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
-BLEUnsignedShortCharacteristic energy_char(
+BLEDoubleCharacteristic energy_char(
     "6E400006-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
 BLEUnsignedCharCharacteristic power_char(
     "6E400007-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLEWrite | BLENotify);
@@ -28,7 +32,8 @@ BLEDescriptor nw_descriptor = BLEDescriptor("2901", "NW LDR Percentage");
 BLEDescriptor ne_descriptor = BLEDescriptor("2901", "NE LDR Percentage");
 BLEDescriptor sw_descriptor = BLEDescriptor("2901", "SW LDR Percentage");
 BLEDescriptor se_descriptor = BLEDescriptor("2901", "SE LDR Percentage");
-BLEDescriptor energy_descriptor = BLEDescriptor("2901", "Energy Generated");
+BLEDescriptor energy_descriptor = BLEDescriptor(
+    "2901", "Average Energy Reading");
 BLEDescriptor power_descriptor = BLEDescriptor("2901", "Power signal");
 BLEDescriptor search_descriptor = BLEDescriptor("2901", "Search signal");
 
@@ -36,7 +41,7 @@ u_int8_t nw = 0; // last NW LDR percentage reading
 u_int8_t ne = 0; // last NE LDR percentage reading
 u_int8_t sw = 0; // last SW LDR percentage reading
 u_int8_t se = 0; // last SE LDR percentage reading
-u_int16_t energy = 0; // last energy reading
+double energy = 0; // last energy average reading
 u_int16_t old_readings[NUM_LDR] = { nw, ne, sw, se };
 
 /*
@@ -45,7 +50,7 @@ u_int16_t old_readings[NUM_LDR] = { nw, ne, sw, se };
  * SolarTracking.h, this library will assume that it is sunset and will turn
  * around the pane and will put the Arduino 101 into a low power sleep state
  */
-u_int8_t times_low;
+u_int8_t times_low = 0;
 
 /*
  * Boolean flag which signals to the Arduino 101 that it should enter a brief
@@ -73,8 +78,23 @@ bool sleeping;
 bool off;
 
 /*
+ * Running average of the amount of Watts measured by the DC current sensor per
+ * second of the device running. This is measured whether or not the device is
+ * connected to a Bluetooth device.
+ */
+double avg_power;
+
+/*
+ * Number of readings performed by the Arduino of the DC current sensor. This
+ * value will range from 1 to 86400, the number of seconds in a day. This value
+ * will increase as soon as the device measures the DC current sensor; it is
+ * used as the denominator of the running average avg_power (see above).
+ */
+u_int32_t num_readings;
+
+/*
  * Method which will take the above defined variables and update their values
- * every DELAY milliseconds. If there is a change in value, any peripheral
+ * every READ_DELAY milliseconds. If there is a change in value, any peripheral
  * device connected to this Service via Bluetooth will be notified.
  */
 void update_readings(int16_t* readings)
@@ -98,13 +118,13 @@ void update_readings(int16_t* readings)
     }
 
     /* Update energy reading if necessary */
-//    if (energy != VREF * avg_power / num_readings) {
-//        Serial.print("\n***\n*** Updating energy reading to ");
-//        energy = VREF * avg_power / num_readings;
-//        Serial.print(energy);
-//        Serial.println("\n***");
-//        energy_char.setValue(energy);
-//    }
+    if (energy != VREF * avg_power / num_readings) {
+        Serial.print("\n***\n*** Updating energy reading to ");
+        energy = VREF * avg_power / num_readings;
+        Serial.print(energy);
+        Serial.println("\n***");
+        energy_char.setValue(energy);
+    }
 }
 
 /*
@@ -160,6 +180,10 @@ void run(bool bluetooth)
                 power_char.setValue(0);
                 off = true;
             }
+            /* Update Watt hour reading when necessary */
+            if (!(num_readings % SEC_IN_HOUR)) {
+                energy_char.write(avg_power / SEC_IN_HOUR); // write Watt hours
+            }
         }
 
         /*
@@ -185,6 +209,10 @@ void run(bool bluetooth)
             } else {
                 track();
             }
+            /* Update average energy reading */
+            avg_power += read_power();
+            num_readings =
+                num_readings == SEC_HIGH ? SEC_LOW : num_readings + 1;
             delay(READ_DELAY); // only delay if not sleeping
         }
     }
@@ -193,7 +221,7 @@ void run(bool bluetooth)
 void setup()
 {
     /* Setup Bluetooth connectivity after The Sun has been found */
-    blep.setLocalName("Helius Panel");
+    blep.setLocalName("Helios Panel");
     blep.setAdvertisedServiceUuid(st.uuid()); // add the service UUID
     blep.addAttribute(st);          // add the BLE service
     blep.addAttribute(nw_ldr_char); // add the LDR Characteristics for all LDRs
@@ -217,16 +245,16 @@ void setup()
     sw_ldr_char.setValue(0);
     se_ldr_char.setValue(0);
     energy_char.setValue(0);
-    power_char.setValue(false);
-    search_char.setValue(false);
+    power_char.setValue(0);
+    search_char.setValue(0);
 
     /* Setup baud rate, pins, interrupt handling, and initialize Servo angles */
     initialize();
 
     /* Search for The Sun, sleep if sun wasn't found; track otherwise */
     off = false;
-    times_low = 0;
     sleeping = search();
+    num_readings = SEC_LOW;
 
     blep.begin();
     Serial.println("\n***\n*** Bluetooth system activated, awaiting peripheral "
