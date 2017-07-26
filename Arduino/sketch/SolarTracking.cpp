@@ -37,7 +37,7 @@ void initialize()
 
     /* Move motors to their starting positions */
     Serial.println("\n***\n*** Motors approaching initial positions\n***");
-    pan_speed(STOP_PAN);
+    pan_speed(93);
     tilt_pane(TILT_INIT); // 45 degrees to prevent pane from shading all LDRs
     delay(WRITE_DELAY); // wait for tilt to finish moving
 }
@@ -63,7 +63,7 @@ void turn_east()
     tilt_pane(TILT_INIT);
 
     /* Pan 180 degrees */
-    pan_speed(SEARCH);
+    //pan_speed(SEARCH);
     while (temp_angle < 180) {
         temp_angle += DA;
         delay(READ_DELAY);
@@ -79,9 +79,7 @@ int16_t read_ldr(sensor ldr)
 //    Serial.print(ldr);
 //    Serial.print(" LDR: ");
 //    Serial.print(reading);
-      Serial.println("\n***");
-      Serial.println(pan.attached());
-      Serial.println(tilt.attached());
+    Serial.println("\n***");
     return reading;
 }
 
@@ -148,7 +146,7 @@ bool search()
         tilt_pane(TILT_INIT);
         delay(WRITE_DELAY);
     }
-    pan_speed(SEARCH);
+    pan_speed(93);
 
     /* Perform NUM_LOOP full loops to search for a significant light source */
     Serial.println("\n***\n*** Initiating search for power source\n***");
@@ -160,7 +158,7 @@ bool search()
             /* Significant light intensity found; don't sleep */
             Serial.println("\n*** Power source detected. Initiating light "
                 "tracking protocol\n***");
-            pan_speed(STOP_PAN);
+            pan_speed(93);
             return false;
         }
         temp_angle += DA;
@@ -192,6 +190,9 @@ void track()
      * counterclockwise, depending on the sign of dh, in order to more directly
      * face The Sun
      */
+
+    Serial.println("In track");
+     
     if (abs(dh) > TRACK_DIFF) {
         if (dh > 0) {
             /*
@@ -202,7 +203,8 @@ void track()
              * 90 degrees (West and East will be switched) then move in the
              * opposite direction, counterclockwise
              */
-            pan_speed(tilt_angle <= 90 ? TRACK_CW : TRACK_CCW);
+            //pan_speed(tilt_angle <= 90 ? TRACK_CW : TRACK_CCW);
+            pan_speed(93);
         } else {
             /*
              * LDRs labeled as East receive more light. In this case, depending
@@ -211,11 +213,12 @@ void track()
              * equal to 90 degrees, then the device should rotate
              * counterclockwise; otherwise it should rotate clockwise
              */
-            pan_speed(tilt_angle <= 90 ? TRACK_CCW : TRACK_CW);
+           // pan_speed(tilt_angle <= 90 ? TRACK_CCW : TRACK_CW);
+           pan_speed(93);
         }
     } else {
         /* Prevent the pan motor moving from this ideal position */
-        pan_speed(STOP_PAN);
+        pan_speed(93);
     }
     /*
      * Check if the vertical reading difference exceeds the track tolerance.
