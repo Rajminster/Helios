@@ -31,5 +31,5 @@ The following libraries are required for this software:
 -- To control the Servo motors' movement using the **attach** and **write** methods
 - [CurieBLE](https://github.com/01org/corelibs-arduino101/tree/master/libraries/CurieBLE)
 -- For all things Bluetooth Low Energy (BLE)
-- [RxAndroidBle](https://github.com/Polidea/RxAndroidBle)
--- For control of application connectivity to the Arduino 101
+- [Android Bluetooth Low Energy](https://developer.android.com/guide/topics/connectivity/bluetooth-le.html)
+-- For control of Android connectivity to the Arduino 101
