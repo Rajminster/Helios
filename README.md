@@ -9,8 +9,10 @@ In order to setup a device ideal for the software written in this repository, th
 - Four Light Dependent Resistor (LDR) sensors
 - Four 100 Ω resistors
 - A solar panel (5'' x 6'')
-- Two standard Servo motors
+- Two standard 180 degree Servo motors
 - Analog DC current sensor
+- Four AA batteries
+- A container for these batteries
 
 Use the following wiring diagram for assembling the hardware and correctly hooking up all components:
 ![alt text](https://github.com/Rajminster/Helios/blob/master/diagram.png "Helios Wiring Diagram")
