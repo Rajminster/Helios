@@ -1,10 +1,93 @@
 #include <CurieBLE.h>
 
-#include "SolarTracking.h"
+#include "/../SolarTracking.h"
 
-#define SEC_LOW     1     // where to begin the denominator for average
+#define SEC_LOW         1 // where to begin the denominator for average
 #define SEC_HIGH    86400 // number of seconds in a day
-#define SEC_IN_HOUR 360   // number of seconds in an hour
+#define SEC_IN_HOUR  3600 // number of seconds in an hour
+
+/*
+ * Sketch to run the solar tracking algorithm and connect to any peripheral
+ * devices via Bluetooth Low Energy (BLE).
+ *
+ * This sketch contains code which setups and creates the BLE service and
+ * necessary characteristics for the LDR readings, the total energy generated,
+ * a signal which controls initiating a search, and a signal which controls
+ * the power of the device (on or off).
+ *
+ * Whenever this sketch is initially uploaded and run, the first action that
+ * occurs setting up the necessary BLE variables so that the device can connect
+ * to any peripheral devices. After this, initialization of pins, Serial
+ * console, and moving Sero motors to their initial positions occurs. After this
+ * the device will initiate a search for The Sun. If the search method (see
+ * below) finds a significant light source, a flag which controls whether or not
+ * the device sleeps will be set to false. If the search method performs
+ * NUM_LOOP (see SolarTracking.h) 360 degree loops, it could not find The Sun,
+ * so the flag which controls sleep will be set to true.
+ *
+ * The device now enters the loop method.
+ *
+ * At any point in this sketch's execution of the loop method (if a peripheral
+ * device is  connected), the user of the Android application can set the power
+ * characteristic (see below) to false which would then set the device's state
+ * to one where it only sleeps for SLEEP_OFF (see SolarTracking.h) milliseconds.
+ * The only way to exit this longer sleep loop is for the user to hit the power
+ * button in the application again. This will set the power characteristic and
+ * the off flag (see below) to false.
+ *
+ * Also at any point in the sketch's execution of loop (if not off and a
+ * peripheral device is connected), the user of the Android application can hit
+ * the search button which will force the device to initiate a search. This will
+ * set the sleep flag to the return value of the search method.
+ *
+ * During normal execution of loop, first the device checks for any peripheral
+ * BLE devices to connect to. If a device is connected, then loop will call the
+ * run method (see below) which will run the solar tracking algorithm like
+ * normal and will update the LDR and power readings to the application;
+ * otherwise loop will call the run method but will not update any of the BLE
+ * characteristics as this is not required. If a peripheral device is connected,
+ * the first thing run will do will be to check if its state is off which will
+ * force it to sleep for SLEEP_ON milliseconds. If the peripheral device
+ * requests that the device be turned on, then run will acknowledge this request
+ * by setting the characteristic to false and setting the power flag to false.
+ *
+ * If the device is not off, then run will read all LDR values and check if any
+ * one sensor has a reading above LOW_READ (see SolarTracking.h). If this is the
+ * case, then the sleeping flag will be set to false. If this method was called
+ * with the bluetooth parameter as true (meaning it's being called while a
+ * peripheral device is connected), the method will update the LDR and the
+ * energy generated values seen on the application if necessary.
+ *
+ * The only difference in calling run with true or false as its parameter is
+ * that the all BLE values won't be updated if the parameter is false.
+ *
+ * Next, run will check if the number of times all LDR sensors read below
+ * LOW_READ is greater than or equal to LOW_TIMES. This would mean the all LDR
+ * sensors read a significantly low reading LOW_TIMES in a row; the software
+ * written here will assume that because of this, it is fair to assume that the
+ * device is trying to received solar energy at or later than sunset. As a
+ * result, the device will pan the entire pane 180 degrees clockwise. If the
+ * assumption was correct this direction will be the general direction of East
+ * which would be the general direction of sunrise. The device will now sleep
+ * for every call to loop for SLEEP_OFF milliseconds until one of the LDRs
+ * measures greater than or equal to LOW_READ.
+ *
+ * If the flag for sleeping is true, the device will go to sleep; if it's false,
+ * then run will check if all LDRs are reading below LOW_READ. If so, the
+ * variable times_low (see below) will be incremented; otherwise the track
+ * method (see SolarTracking.cpp) will be called. Next avg_power (see below)
+ * will be incremented by whatever the DC current sensor is reading, the number
+ * of total readings for the average (see num_readings below) will be
+ * incremented by one, and the device will delay by READ_DELAY (see
+ * SolarTracking.h) milliseconds.
+ *
+ * This entire process of running loop (not sleeping, not off) will take
+ * READ_DELAY milliseconds, READ_DELAY + SLEEP_ON milliseconds when sleeping,
+ * and READ_DELAY + SLEEP_OFF if off.
+ *
+ * AUTHOR:
+ * Nikola Istvanic
+ */
 
 BLEPeripheral blep;
 BLEService st = BLEService("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -42,7 +125,7 @@ u_int8_t ne = 0; // last NE LDR percentage reading
 u_int8_t sw = 0; // last SW LDR percentage reading
 u_int8_t se = 0; // last SE LDR percentage reading
 double energy = 0; // last energy average reading
-u_int16_t old_readings[NUM_LDR] = { nw, ne, sw, se };
+u_int8_t old_readings[NUM_LDR] = { nw, ne, sw, se };
 
 /*
  * Variable for keeping track of how many times in a row all LDRs measure a
@@ -117,8 +200,9 @@ void update_readings(int16_t* readings)
         }
     }
 
-    /* Update energy (in Watt hours) reading if necessary */
-    if (energy != VREF * avg_power / num_readings / SEC_IN_HOUR) {
+    /* Update energy (in Watt hours) reading if necessary every 30 seconds */
+    if (!(num_readings % 30)
+        && energy != VREF * avg_power / num_readings / SEC_IN_HOUR) {
         Serial.print("\n***\n*** Updating energy reading to ");
         energy = VREF * avg_power / num_readings / SEC_IN_HOUR;
         Serial.print(energy);
@@ -208,7 +292,7 @@ void run(bool bluetooth)
             /* Update average energy reading */
             avg_power += read_power();
             num_readings =
-                num_readings == SEC_HIGH ? SEC_LOW : num_readings + 1;
+                num_readings >= SEC_HIGH ? SEC_LOW : num_readings + 1;
             delay(READ_DELAY); // only delay if not sleeping
         }
     }
