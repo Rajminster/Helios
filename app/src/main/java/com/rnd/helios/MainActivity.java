@@ -67,16 +67,16 @@ public class MainActivity extends AppCompatActivity {
 
         /* Initialize UI elements */
         ldr0Button = (Button) findViewById(R.id.ldr0);
-        ldr0Button.setText(0);
+        ldr0Button.setText("0%");
         ldr0Button.setEnabled(false);
         ldr1Button = (Button) findViewById(R.id.ldr1);
-        ldr1Button.setText(0);
+        ldr1Button.setText("0%");
         ldr1Button.setEnabled(false);
         ldr2Button = (Button) findViewById(R.id.ldr2);
-        ldr2Button.setText(0);
+        ldr2Button.setText("0%");
         ldr2Button.setEnabled(false);
         ldr3Button = (Button) findViewById(R.id.ldr3);
-        ldr3Button.setText(0);
+        ldr3Button.setText("0%");
         ldr3Button.setEnabled(false);
         powerBar = (ProgressBar) findViewById(R.id.powerBar);
         powerBar.setProgress(0);
@@ -140,9 +140,9 @@ public class MainActivity extends AppCompatActivity {
         String macAddress = "98:4F:EE:10:AB:C3";
         bleDevice = rxBleClient.getBleDevice(macAddress);
 
-        if (device != null)
+        if (device != null) {
             connectToDevice(device);
-        else {
+        } else {
             device = bleDevice.getBluetoothDevice();
             connectToDevice(device);
         }
@@ -222,16 +222,20 @@ public class MainActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    if (characteristic.getUuid().toString().charAt(7) == '2')
-                        ldr0Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
-                    if (characteristic.getUuid().toString().charAt(7) == '3')
-                        ldr1Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
-                    if (characteristic.getUuid().toString().charAt(7) == '4')
-                        ldr2Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
-                    if (characteristic.getUuid().toString().charAt(7) == '5')
-                        ldr3Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
+                    if (characteristic.getUuid().toString().charAt(7) == '2') {
+                        ldr0Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "%");
+                    }
+                    if (characteristic.getUuid().toString().charAt(7) == '3') {
+                        ldr1Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "%");
+                    }
+                    if (characteristic.getUuid().toString().charAt(7) == '4') {
+                        ldr2Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "%");
+                    }
+                    if (characteristic.getUuid().toString().charAt(7) == '5') {
+                        ldr3Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "%");
+                    }
                     if (characteristic.getUuid().toString().charAt(7) == '6') {
-                        powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + " Wh");
+                        powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_FLOAT, 0) + " Wh");
                         powerBar.setProgress(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
                     }
                     if (characteristic.getUuid().toString().charAt(7) == '7') {
