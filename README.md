@@ -32,4 +32,6 @@ The following libraries are required for this software:
 - [CurieBLE](https://github.com/01org/corelibs-arduino101/tree/master/libraries/CurieBLE)
 -- For all things Bluetooth Low Energy (BLE)
 - [Android Bluetooth Low Energy](https://developer.android.com/guide/topics/connectivity/bluetooth-le.html)
--- For control of Android connectivity to the Arduino 101
+-- For control of Android interaction with the Arduino 101
+- [RxAndroidBle](https://github.com/Polidea/RxAndroidBle)
+-- For control of application connectivity to the Arduino 101
