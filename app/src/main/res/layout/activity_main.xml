@@ -11,7 +11,7 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintWidth_default="wrap"
-    tools:context="com.rnd.helius.MainActivity">
+    tools:context="com.rnd.helios.MainActivity">
 
     <Button
         android:id="@+id/findButton"
@@ -21,7 +21,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:fadeScrollbars="false"
-        android:text="Find Helius"
+        android:text="Find Helios"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
