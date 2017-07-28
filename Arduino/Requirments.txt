@@ -1,4 +1,0 @@
-Extra characteristics power generated, turn on, turn off
-Sleep boolean to true, when loop is called...goes to sleep for 3 sec, if receives command...will take a second to notify
-Change delay over day 
-Add to Readme
