@@ -1,4 +1,4 @@
-package com.rnd.helius;
+package com.rnd.helios;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -9,12 +9,8 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
-import android.bluetooth.le.BluetoothLeScanner;
-import android.bluetooth.le.ScanFilter;
-import android.bluetooth.le.ScanSettings;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -33,8 +29,14 @@ import com.polidea.rxandroidble.internal.RxBleLog;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
+/**
+ * Activity to setup Bluetooth connectivity and update BLE characteristics on the UI based on the
+ * readings from the sensors corresponding to each characteristic. This activity will handle all the
+ * requirements and use of Bluetooth Low Energy in order to connect, receive, and trasmit data.
+ *
+ * @author Rishi Raj
+ */
 public class MainActivity extends AppCompatActivity {
     Button searchButton;
     Button findButton;
@@ -47,25 +49,13 @@ public class MainActivity extends AppCompatActivity {
     ProgressBar powerBar;
     TextView powerText;
     Handler bluetoothIn;
-    static String address;
-    String ser = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E";
-    String ldr = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E";
-    UUID uldr = UUID.fromString(ldr);
-    UUID serviceUUID = UUID.fromString(ser);
     BluetoothDevice device;
     BluetoothAdapter mBluetoothAdapter;
     RxBleDevice bleDevice;
-    private int REQUEST_ENABLE_BT = 1;
-    private Handler mHandler;
-    private static final long SCAN_PERIOD = 10000;
-    private BluetoothLeScanner mLEScanner;
-    private ScanSettings settings;
-    private List<ScanFilter> filters;
-    private BluetoothGatt mGatt;
-    List<BluetoothGattService> services;
-    BluetoothGattService helius;
+    BluetoothGatt mGatt;
+    BluetoothGattService helios;
     BluetoothGatt bluetoothGatt;
-    List<BluetoothGattCharacteristic> heliusChars;
+    List<BluetoothGattCharacteristic> heliosChars;
     boolean power = false;
     boolean search = false;
 
@@ -74,27 +64,28 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        /* Initialize UI elements */
         ldr0Button = (Button) findViewById(R.id.ldr0);
-        ldr0Button.setText((int) (Math.random() * 100) + "");
+        ldr0Button.setText(0);
         ldr0Button.setEnabled(false);
         ldr1Button = (Button) findViewById(R.id.ldr1);
-        ldr1Button.setText((int) (Math.random() * 100) + "");
+        ldr1Button.setText(0);
         ldr1Button.setEnabled(false);
         ldr2Button = (Button) findViewById(R.id.ldr2);
-        ldr2Button.setText((int) (Math.random() * 100) + "");
+        ldr2Button.setText(0);
         ldr2Button.setEnabled(false);
         ldr3Button = (Button) findViewById(R.id.ldr3);
-        ldr3Button.setText((int) (Math.random() * 100) + "");
+        ldr3Button.setText(0);
         ldr3Button.setEnabled(false);
         powerBar = (ProgressBar) findViewById(R.id.powerBar);
-        powerBar.setProgress((int) (Math.random() * 100));
+        powerBar.setProgress(0);
         powerText = (TextView) findViewById(R.id.powerText);
         powerButton = (Button) findViewById(R.id.powerButton);
         powerButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 power = true;
                 if (mGatt != null) {
-//                    heliusChars.get(5).setValue(1,BluetoothGattCharacteristic.FORMAT_UINT8,0);
                     Log.i("POWER", "Set Value " + power);
                 }
             }
@@ -102,11 +93,8 @@ public class MainActivity extends AppCompatActivity {
         searchButton = (Button) findViewById(R.id.searchButton);
         searchButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-//                Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
-//                startActivity(intent)
                 search = true;
                 if (mGatt != null) {
-//                    heliusChars.get(5).setValue(1,BluetoothGattCharacteristic.FORMAT_UINT8,0);
                     Log.i("Search", "Search " + power);
                 }
             }
@@ -125,23 +113,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         bluetoothIn = new Handler() {
-            public void handleMessage(android.os.Message msg) {                 //if message is what we want
-                String readMessage = (String) msg.obj;                                                                // msg.arg1 = bytes from connect thread
+            public void handleMessage(android.os.Message msg) {
+                String readMessage = (String) msg.obj;
                 Toast.makeText(getApplicationContext(), readMessage, Toast.LENGTH_SHORT).show();
                 Log.d("FOUND", readMessage);
             }
         };
+
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-//        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBluetoothAdapter == null && !mBluetoothAdapter.isEnabled()) {
             Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(turnOn, 0);
         }
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
         for (BluetoothDevice bt : pairedDevices) {
-            if (bt.getName().equals("Helius Panel")) {
+            if (bt.getName().equals("Helios Panel")) {
                 device = bt;
                 Log.d("FOUND", bt.getName());
 
@@ -152,11 +140,6 @@ public class MainActivity extends AppCompatActivity {
         String macAddress = "98:4F:EE:10:AB:C3";
         bleDevice = rxBleClient.getBleDevice(macAddress);
 
-        settings = new ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .build();
-        filters = new ArrayList<ScanFilter>();
-        //scanLeDevice(true);
         if (device != null)
             connectToDevice(device);
         else {
@@ -164,21 +147,16 @@ public class MainActivity extends AppCompatActivity {
             connectToDevice(device);
         }
 
-        //Loop
         final Handler handler = new Handler();
         Runnable task = new Runnable() {
             @Override
             public void run() {
                 Log.d("LOOP", "Doing task");
-                if (heliusChars != null) {
-
-                }
                 handler.postDelayed(this, 1000);
             }
         };
         handler.post(task);
     }
-
 
     public void connectToDevice(BluetoothDevice device) {
         if (mGatt == null) {
@@ -196,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
                 case BluetoothProfile.STATE_CONNECTED:
                     Log.i("gattCallback", "STATE_CONNECTED");
                     gatt.discoverServices();
-                    Log.d("FUUCKCKKCKKKC", gatt.getDevice().getName());
                     bluetoothGatt = gatt;
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
@@ -211,13 +188,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             List<BluetoothGattService> services = gatt.getServices();
-            helius = services.get(2);
-            heliusChars = helius.getCharacteristics();
-            chars = helius.getCharacteristics();
-            Log.i("onServicesDiscovered", heliusChars.get(5).getUuid().toString());
-            //gatt.readCharacteristic(heliusChars.get(0));
-            for (BluetoothGattCharacteristic c : heliusChars)
+            helios = services.get(2);
+            heliosChars = helios.getCharacteristics();
+            chars = helios.getCharacteristics();
+            Log.i("onServicesDiscovered", heliosChars.get(5).getUuid().toString());
+            for (BluetoothGattCharacteristic c : heliosChars) {
                 gatt.setCharacteristicNotification(c, true);
+            }
             requestCharacteristics(gatt);
             runOnUiThread(new Runnable() {
                 @Override
@@ -233,35 +210,28 @@ public class MainActivity extends AppCompatActivity {
 
         public void requestCharacteristics(BluetoothGatt gatt) {
             if (chars.isEmpty()) {
-                chars.addAll(heliusChars);
+                chars.addAll(heliosChars);
                 requestCharacteristics(gatt);
-            } else
+            } else {
                 gatt.readCharacteristic(chars.get(0));
+            }
         }
 
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
-//            Log.i("onCharacteristicRead", characteristic.getUuid().toString());
-//            Log.i("onCharacteristicValue", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     if (characteristic.getUuid().toString().charAt(7) == '2')
-//                        ldr0Button.setText(Math.round(Math.random() * 100) + "%");
                         ldr0Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     if (characteristic.getUuid().toString().charAt(7) == '3')
-//                        ldr1Button.setText(Math.round(Math.random() * 100) + "%");
                         ldr1Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     if (characteristic.getUuid().toString().charAt(7) == '4')
-//                        ldr2Button.setText(Math.round(Math.random() * 100) + "%");
                         ldr2Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     if (characteristic.getUuid().toString().charAt(7) == '5')
-//                        ldr3Button.setText(Math.round(Math.random() * 100) + "%");
                         ldr3Button.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     if (characteristic.getUuid().toString().charAt(7) == '6') {
-//                        powerText.setText(Math.round(Math.random() * 100) + "%");
-                        powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "W");
+                        powerText.setText(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + " Wh");
                         powerBar.setProgress(characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0));
                     }
                     if (characteristic.getUuid().toString().charAt(7) == '7') {
@@ -278,43 +248,33 @@ public class MainActivity extends AppCompatActivity {
                             gatt.writeCharacteristic(characteristic);
                             search = false;
                         }
-                        Log.i("Seach", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
+                        Log.i("Search", characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_SINT8, 0) + "");
                     }
                 }
             });
-
-
-            // gatt.readDescriptor(characteristic.getDescriptors().get(0));
-            //gatt.disconnect();
             chars.add(chars.remove(0));
-
-
             if (chars.size() > 0) {
                 requestCharacteristics(gatt);
-            } else {
-
             }
         }
 
         @Override
-        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+        public void onCharacteristicWrite(BluetoothGatt gatt,
+            BluetoothGattCharacteristic characteristic, int status) {
             Log.i("onCharacteristicWrite", characteristic.getUuid().toString());
         }
 
         @Override
         public void onDescriptorRead(BluetoothGatt gatt, BluetoothGattDescriptor descriptor,
-                                     int status) {
+            int status) {
             Log.i("onDescriptorRead", descriptor.getUuid().toString());
             Log.i("onDescriptorValue", descriptor.getValue().toString());
         }
 
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic
-                characteristic) {
+            characteristic) {
             Log.i("onCharacteristicChange", characteristic.getUuid().toString() + "CHANGED");
         }
     };
 }
-
-
-
