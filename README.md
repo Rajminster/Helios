@@ -15,7 +15,7 @@ In order to setup a device ideal for the software written in this repository, th
 - A container for these batteries
 
 Use the following wiring diagram for assembling the hardware and correctly hooking up all components:
-![alt text](https://github.com/Rajminster/Helios/blob/master/diagram.png "Helios Wiring Diagram")
+![alt text](https://github.com/Rajminster/Helios/blob/master/helios_diagram.png "Helios Wiring Diagram")
 
 
 ## Software
