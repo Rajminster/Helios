@@ -2,10 +2,6 @@
 
 #include "/../SolarTracking.h"
 
-#define SEC_LOW         1 // where to begin the denominator for average
-#define SEC_HIGH    86400 // number of seconds in a day
-#define SEC_IN_HOUR  3600 // number of seconds in an hour
-
 /*
  * Sketch to run the solar tracking algorithm and connect to any peripheral
  * devices via Bluetooth Low Energy (BLE).
@@ -88,6 +84,11 @@
  * AUTHOR:
  * Nikola Istvanic
  */
+
+ #define SEC_LOW         1 // where to begin the denominator for average
+ #define SEC_HIGH    86400 // number of seconds in a day
+ #define SEC_IN_HOUR  3600 // number of seconds in an hour
+ #define TIME           30 // number of seconds to wait before updating the energy characteristic
 
 BLEPeripheral blep;
 BLEService st = BLEService("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -200,8 +201,8 @@ void update_readings(int16_t* readings)
         }
     }
 
-    /* Update energy (in Watt hours) reading if necessary every 30 seconds */
-    if (!(num_readings % 30)
+    /* Update energy (in Watt hours) reading if necessary every TIME seconds */
+    if (!(num_readings % TIME)
         && energy != VREF * avg_power / num_readings / SEC_IN_HOUR) {
         Serial.print("\n***\n*** Updating energy reading to ");
         energy = VREF * avg_power / num_readings / SEC_IN_HOUR;
