@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.rnd.helius", appContext.getPackageName());
+        assertEquals("com.rnd.helios", appContext.getPackageName());
     }
 }
