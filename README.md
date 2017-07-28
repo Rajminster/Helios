@@ -13,6 +13,8 @@ In order to setup a device ideal for the software written in this repository, th
 - Analog DC current sensor
 
 Use the following wiring diagram for assembling the hardware and correctly hooking up all components:
+![alt text](https://github.com/Rajminster/Helios/blob/master/diagram.png "Helios Wiring Diagram")
+
 
 ## Software
 
