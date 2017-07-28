@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#000000"
-    tools:context="com.rnd.helius.HelpActivity">
+    tools:context="com.rnd.helios.HelpActivity">
 
     <TextView
         android:id="@+id/title"
@@ -36,7 +36,7 @@
         android:inputType="textMultiLine"
         android:maxLines="100"
         android:scrollHorizontally="false"
-        android:text='Step 1. Press the "Find Helius" button to find Helius over Bluetooth.'
+        android:text='Step 1. Press the "Find Helios" button to find Helius over Bluetooth.'
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         app:layout_constraintLeft_toLeftOf="parent"
