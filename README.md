@@ -4,7 +4,7 @@ Named after the Greek god of The Sun, Helios is the combination of a solar track
 
 ## Hardware
 
-In order to setup a device ideal for the software written in this repository, the following hardware components shouuld be assembled:
+In order to setup a device ideal for the software written in this repository, the following hardware components should be assembled:
 - An Intel Arduino 101
 - Four Light Dependent Resistor (LDR) sensors
 - Four 100 Ω resistors
