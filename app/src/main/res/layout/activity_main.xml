@@ -11,7 +11,7 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintWidth_default="wrap"
-    tools:context="com.rnd.helius.MainActivity">
+    tools:context="com.rnd.helios.MainActivity">
 
     <Button
         android:id="@+id/findButton"
